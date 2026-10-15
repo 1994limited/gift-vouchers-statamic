@@ -44,7 +44,8 @@ class DocumentsTest extends TestCase
             ->assertSeeText('For Grace')
             ->assertSeeText('From Ada')
             ->assertSee('Happy birthday!')
-            ->assertSee('Download PDF');
+            ->assertSee('Download PDF')
+            ->assertSee('<a href="http://localhost">localhost</a>', false);
     }
 
     #[Test]

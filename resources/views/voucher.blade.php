@@ -47,6 +47,7 @@
         .message cite { display: block; font-style: normal; font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 9pt; color: #6b7280; margin-top: 6px; }
         .how { margin: 0 0 12px; }
         .facts { font-size: 9.5pt; color: #4b5563; margin: 0 0 12px; }
+        .facts a { color: {{ $colour }}; text-decoration: underline; }
         .terms { font-size: 8pt; color: #6b7280; margin: 0; white-space: pre-line; border-top: 1px solid #e5e7eb; padding-top: 10px; }
 
         @media print {
@@ -83,7 +84,7 @@
             @if($voucher->balance !== $voucher->initial_amount)
                 {{ __('gift-vouchers::messages.document.balance') }}: <strong>{{ $balance }}</strong> ·
             @endif
-            {{ __('gift-vouchers::messages.document.where') }}: {{ preg_replace('#^https?://#', '', rtrim($siteUrl, '/')) }}
+            {{ __('gift-vouchers::messages.document.where') }}: <a href="{{ $siteUrl }}">{{ preg_replace('#^https?://#', '', rtrim($siteUrl, '/')) }}</a>
         </p>
 
         @if($terms)
