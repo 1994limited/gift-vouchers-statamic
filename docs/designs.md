@@ -90,7 +90,7 @@ They get the same variables as the addon's views:
 
 ## The pattern on your own pages
 
-`{{ gift_vouchers:artwork design="birthday" }}` draws a design's engraved card as inline SVG, and `shape="emblem"` draws just the rosette. Use them for banners or a "Gift vouchers" page.
+`{{ gift_vouchers:artwork design="birthday" }}` draws a design's engraved card as inline SVG, and `shape="emblem"` draws just the rosette. Use them for banners or a "Gift vouchers" page. In Blade: `{!! Statamic::tag('gift_vouchers:artwork')->param('design', 'birthday')->fetch() !!}`.
 
 ## Your own pattern (PHP)
 

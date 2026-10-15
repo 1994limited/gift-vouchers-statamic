@@ -2,6 +2,8 @@
 
 ![Cargo's prebuilt checkout with a gift voucher taken off the total](images/prebuilt-checkout.png)
 
+> These partials are Antlers, as Cargo's prebuilt checkout is. A Blade site with its own checkout uses the tags instead: see [Templates](templates.md), where every example has a Blade version.
+
 Cargo comes with a ready-made checkout (published to `resources/views/checkout/` by `php please cargo:install`). Gift Vouchers has partials that fit it: a box for codes, the vouchers as lines with the totals, and the order confirmation. They use the checkout's own Alpine.js, styles and wording.
 
 ## The checkout

@@ -8,7 +8,7 @@ The examples are from [the demo shop](demo.md), trimmed down.
 
 ## Antlers or Blade
 
-The examples are Antlers, but every tag works in Blade too, with Statamic's tag syntax:
+Every example below is Antlers, with the same thing in Blade under **Blade**: click it to open. Blade uses Statamic's tag syntax, for example:
 
 ```blade
 <s:gift_vouchers:form product="voucher-25" redirect="/basket">
@@ -64,6 +64,44 @@ On the voucher product's page (the entry is in context, or pass `product="…"`)
 {{ /gift_vouchers:form }}
 ```
 
+<details>
+<summary>Blade</summary>
+
+```blade
+<s:gift_vouchers:form :product="$id" redirect="/basket">
+    @if ($is_open)
+        <label for="amount">Amount ({!! $min_formatted !!} to {!! $max_formatted !!})</label>
+        @foreach ($suggested as $amount)
+            <button type="button" data-gift-vouchers-amount="{!! $amount['value'] !!}" hidden>{!! $amount['formatted'] !!}</button>
+        @endforeach
+        <input type="text" inputmode="decimal" id="amount" name="amount" value="{!! $old['amount'] ?? '50' !!}" required>
+        @isset ($errors['amount'])<p class="error">{!! $errors['amount'] !!}</p>@endisset
+    @else
+        <p>{!! $price !!}</p>
+    @endif
+
+    <label for="recipient_name">Their name</label>
+    <input type="text" id="recipient_name" name="recipient_name" value="{!! $old['recipient_name'] ?? '' !!}" maxlength="{{ $name_limit }}">
+
+    <label for="recipient_email">Their email (or leave empty to get it yourself)</label>
+    <input type="email" id="recipient_email" name="recipient_email" value="{!! $old['recipient_email'] ?? '' !!}">
+    @isset ($errors['recipient_email'])<p class="error">{!! $errors['recipient_email'] !!}</p>@endisset
+
+    <label for="sender_name">From</label>
+    <input type="text" id="sender_name" name="sender_name" value="{!! $old['sender_name'] ?? '' !!}" maxlength="{{ $name_limit }}">
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message" maxlength="{{ $message_limit }}">{!! $old['message'] ?? '' !!}</textarea>
+
+    <label for="send_on">Send it on (leave empty to send it when you pay)</label>
+    <input type="date" id="send_on" name="send_on" value="{!! $old['send_on'] ?? '' !!}" min="{{ $earliest_send_on }}" max="{{ $latest_send_on }}">
+
+    <button type="submit">Add to basket</button>
+</s:gift_vouchers:form>
+```
+
+</details>
+
 Every field but the amount (for shopper-chosen amounts) is optional. Without a recipient's email, the voucher is emailed to the customer. Fields:
 
 | Field | Is |
@@ -98,6 +136,26 @@ If you've set [designs](designs.md#designs), let the shopper choose one:
 {{ /if }}
 ```
 
+<details>
+<summary>Blade</summary>
+
+```blade
+@if ($has_designs)
+    <fieldset>
+        <legend>Design</legend>
+        @foreach ($designs as $design)
+            <label>
+                <input type="radio" name="design" value="{!! $design['handle'] !!}" @checked($design['is_selected'])>
+                <img src="{!! $design['preview'] !!}" alt="" width="240" height="240">
+                {!! $design['name'] !!}
+            </label>
+        @endforeach
+    </fieldset>
+@endif
+```
+
+</details>
+
 `preview` is a small picture of each design: its engraved emblem, its image, or a plain frame.
 
 ## The live preview
@@ -105,6 +163,15 @@ If you've set [designs](designs.md#designs), let the shopper choose one:
 ```antlers
 {{ gift_vouchers:preview }}
 ```
+
+<details>
+<summary>Blade</summary>
+
+```blade
+{!! Statamic::tag('gift_vouchers:preview')->param('product', $id)->fetch() !!}
+```
+
+</details>
 
 This draws the voucher card exactly as it'll be printed, with a placeholder code, and fills it in from the voucher form as the shopper types: the amount, who it's for and from, and the design (with its title, colour and pattern). It adds its own small script; the card is drawn either way.
 
@@ -125,6 +192,20 @@ After a form posts:
 {{ /if }}
 ```
 
+<details>
+<summary>Blade</summary>
+
+```blade
+@if ($success = Statamic::tag('gift_vouchers:success')->fetch())
+    <p class="notice">{!! $success !!}</p>
+@endif
+@if ($error = Statamic::tag('gift_vouchers:error')->fetch())
+    <p class="error">{!! $error !!}</p>
+@endif
+```
+
+</details>
+
 Inside the forms, `{{ errors:amount }}`, `{{ errors:code }}` and so on are each field's message.
 
 ## Using a code (the basket)
@@ -137,6 +218,20 @@ Inside the forms, `{{ errors:amount }}`, `{{ errors:code }}` and so on are each 
     {{ if errors:code }}<p class="error">{{ errors:code }}</p>{{ /if }}
 {{ /gift_vouchers:redeem }}
 ```
+
+<details>
+<summary>Blade</summary>
+
+```blade
+<s:gift_vouchers:redeem>
+    <label for="code">Gift voucher code</label>
+    <input type="text" id="code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <button type="submit">Apply</button>
+    @isset ($errors['code'])<p class="error">{!! $errors['code'] !!}</p>@endisset
+</s:gift_vouchers:redeem>
+```
+
+</details>
 
 Codes can be typed in any case, with or without spaces and dashes. Using a code is rate limited (10 a minute per visitor by default) so codes can't be guessed.
 
@@ -153,6 +248,22 @@ Then show what each voucher covers with the totals:
 <div>To pay {{ cart:grand_total }}</div>
 ```
 
+<details>
+<summary>Blade</summary>
+
+```blade
+<div>Subtotal {{ Statamic::tag('cart:sub_total')->fetch() }}</div>
+<s:gift_vouchers:applied>
+    <div>
+        Gift voucher {!! $code !!} −{!! $amount_formatted !!}
+        <s:gift_vouchers:remove :voucher="$id"><button>Remove</button></s:gift_vouchers:remove>
+    </div>
+</s:gift_vouchers:applied>
+<div>To pay {{ Statamic::tag('cart:grand_total')->fetch() }}</div>
+```
+
+</details>
+
 `{{ cart:grand_total }}` already has the vouchers taken off. `{{ gift_vouchers:total }}` is the total they cover.
 
 Showing a voucher's details in the basket, from Cargo's line items (escape them):
@@ -164,6 +275,19 @@ Showing a voucher's details in the basket, from Cargo's line items (escape them)
     {{ if voucher_message }}<div>“{{ voucher_message | sanitize }}”</div>{{ /if }}
 {{ /cart:line_items }}
 ```
+
+<details>
+<summary>Blade</summary>
+
+```blade
+<s:cart:line_items>
+    <strong>{{ $product->title }}</strong> {{ $sub_total }}
+    @if ($voucher_recipient_name ?? null)<div>For {{ $voucher_recipient_name }}</div>@endif
+    @if ($voucher_message ?? null)<div>“{{ $voucher_message }}”</div>@endif
+</s:cart:line_items>
+```
+
+</details>
 
 ## Checking a balance
 
@@ -179,6 +303,24 @@ Showing a voucher's details in the basket, from Cargo's line items (escape them)
     {{ if errors:code }}<p class="error">{{ errors:code }}</p>{{ /if }}
 {{ /gift_vouchers:check }}
 ```
+
+<details>
+<summary>Blade</summary>
+
+```blade
+<s:gift_vouchers:balance>
+    <p>{!! $balance_formatted !!} left{!! $expires_formatted ? ', to spend by '.$expires_formatted : '' !!}.</p>
+</s:gift_vouchers:balance>
+
+<s:gift_vouchers:check>
+    <label for="code">Voucher code</label>
+    <input type="text" id="code" name="code" required>
+    <button type="submit">Check</button>
+    @isset ($errors['code'])<p class="error">{!! $errors['code'] !!}</p>@endisset
+</s:gift_vouchers:check>
+```
+
+</details>
 
 Only the last four characters of the code are ever shown back. Checking is rate limited with using a code.
 
@@ -196,5 +338,23 @@ Only the last four characters of the code are ever shown back. Checking is rate 
     </p>
 {{ /gift_vouchers:issued }}
 ```
+
+<details>
+<summary>Blade</summary>
+
+```blade
+<s:gift_vouchers:applied :order="$id">
+    <div>Paid with gift voucher {!! $code !!} −{!! $amount_formatted !!}</div>
+</s:gift_vouchers:applied>
+
+<s:gift_vouchers:issued :order="$id">
+    <p>
+        {!! $amount_formatted !!} for {!! $recipient_name ?? $recipient_email !!}:
+        @if ($is_scheduled) we'll email it on {!! $send_on_formatted !!} @else emailed @endif
+    </p>
+</s:gift_vouchers:issued>
+```
+
+</details>
 
 Codes aren't shown on the confirmation page: they go to the recipient by email.

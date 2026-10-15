@@ -49,6 +49,23 @@ The installer adds a **Gift voucher** product blueprint, a tax class with no rat
 {{ /gift_vouchers:form }}
 ```
 
+<details>
+<summary>Blade</summary>
+
+```blade
+{!! Statamic::tag('gift_vouchers:preview')->param('product', $id)->fetch() !!}
+
+<s:gift_vouchers:form :product="$id" redirect="/basket">
+    <input type="text" name="amount" value="50">
+    <input type="text" name="recipient_name" placeholder="Their name">
+    <input type="email" name="recipient_email" placeholder="Their email">
+    <textarea name="message"></textarea>
+    <button>Add to basket</button>
+</s:gift_vouchers:form>
+```
+
+</details>
+
 and a box for codes to your basket:
 
 ```antlers
@@ -57,6 +74,18 @@ and a box for codes to your basket:
     <button>Apply</button>
 {{ /gift_vouchers:redeem }}
 ```
+
+<details>
+<summary>Blade</summary>
+
+```blade
+<s:gift_vouchers:redeem>
+    <input type="text" name="code" placeholder="Gift voucher code">
+    <button>Apply</button>
+</s:gift_vouchers:redeem>
+```
+
+</details>
 
 Using Cargo's prebuilt checkout? Add `{{ partial:gift-vouchers::cargo-checkout }}`. See [Cargo's prebuilt checkout](docs/prebuilt-checkout.md).
 

@@ -1,6 +1,6 @@
 # Tags
 
-Every tag starts `gift_vouchers:`. Values from shoppers are escaped. Amounts are given both as whole minor units (pence) and `_formatted` in the site's currency and locale.
+Every tag starts `gift_vouchers:`, and works in Antlers and Blade (`<s:gift_vouchers:form>…</s:gift_vouchers:form>`, or `Statamic::tag('gift_vouchers:total')->fetch()`). In Blade, print tag values with `{!! !!}`, as the tags have already escaped them: see [Antlers or Blade](templates.md#antlers-or-blade). Values from shoppers are escaped. Amounts are given both as whole minor units (pence) and `_formatted` in the site's currency and locale.
 
 Forms all take `redirect` (where to go afterwards, on this site) and `error_redirect` (where to go if it fails), and any other parameter becomes an attribute of the `<form>` (`class`, `id`, `x-data`…). They include a CSRF token. See [Templates](templates.md) for whole examples.
 
