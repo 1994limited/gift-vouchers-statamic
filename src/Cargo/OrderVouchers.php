@@ -70,9 +70,9 @@ class OrderVouchers
         $order->lineItems()
             ->filter(fn (LineItem $lineItem) => $this->products->isVoucherLine($lineItem))
             ->each(function (LineItem $lineItem) use ($order, $currency, $made) {
-                $amount = (int) $lineItem->unitPrice();
+                $amounts = $this->values($lineItem);
 
-                if ($amount <= 0) {
+                if (array_sum($amounts) <= 0) {
                     return;
                 }
 
@@ -87,7 +87,13 @@ class OrderVouchers
                 $months = $this->products->expiryMonths($lineItem->product());
                 $design = app(Designs::class)->find((string) $lineItem->get(Products::DESIGN) ?: null)->handle;
 
-                for ($sequence = 1; $sequence <= max(1, (int) $lineItem->quantity()); $sequence++) {
+                foreach ($amounts as $index => $amount) {
+                    $sequence = $index + 1;
+
+                    if ($amount <= 0) {
+                        continue;
+                    }
+
                     $attributes = [
                         'order_id' => $order->id(),
                         'line_item_id' => $lineItem->id(),
@@ -119,6 +125,28 @@ class OrderVouchers
             ->each(fn (Voucher $voucher) => $this->delivery->sendSafely($voucher));
 
         return $made;
+    }
+
+    /**
+     * What each voucher on a line item is worth: its price, or (with
+     * gift-vouchers.voucher_value set to 'paid') its share of what was paid
+     * after Cargo's discounts, the odd pence going to the first.
+     *
+     * @return array<int, int>
+     */
+    protected function values(LineItem $lineItem): array
+    {
+        $quantity = max(1, (int) $lineItem->quantity());
+
+        if (config('gift-vouchers.voucher_value', 'price') !== 'paid') {
+            return array_fill(0, $quantity, (int) $lineItem->unitPrice());
+        }
+
+        $paid = max(0, (int) $lineItem->subTotal() - (int) $lineItem->discountTotal());
+        $each = intdiv($paid, $quantity);
+        $left = $paid - $each * $quantity;
+
+        return array_map(fn (int $i) => $each + ($i < $left ? 1 : 0), range(0, $quantity - 1));
     }
 
     /**

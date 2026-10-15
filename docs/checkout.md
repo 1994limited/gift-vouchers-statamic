@@ -19,7 +19,7 @@ A voucher is a way of paying, not a discount. When a shopper uses a code, the ca
 - **Vouchers can't pay for vouchers**, unless you turn on `pay_for_vouchers`. A code can't be used on a basket of only vouchers.
 - **A voucher must be in the site's currency.** A voucher bought in GBP can't be spent on a EUR site.
 
-A voucher that would cover nothing (the order's already paid for by other vouchers, say) isn't added, so the shopper isn't confused by a £0.00 line. A voucher that's disabled, expires or is spent elsewhere after it was added drops off the cart the next time it's worked out.
+A voucher that would cover nothing (the order's already paid for by other vouchers, say) isn't added, so the shopper isn't confused by a £0.00 line. A voucher that's disabled, expires or is spent elsewhere after it was added drops off the cart the next time Cargo works the cart out (when its contents, address or shipping change). If nothing changes before checkout, checkout itself catches it, as below.
 
 ## Nothing is spent until the order is placed
 
@@ -27,7 +27,7 @@ Vouchers on a cart aren't held: the shopper might never check out. The balance i
 
 1. Each voucher's part is taken with a single conditional update, "take £30 off this voucher if it has at least £30 and can be spent". If the voucher no longer has enough (spent on another order a moment ago, in another tab), nothing is taken.
 2. All the vouchers on an order are spent together or not at all.
-3. If any can't cover its part, checkout stops with a message ("This gift voucher only has £5.00 left."). Cargo cancels the payment (Stripe's payments are only authorised at that point) and deletes the order, and nothing has been spent.
+3. If any can't cover its part, checkout stops with a message ("This gift voucher only has £5.00 left."). The order Cargo started is deleted, Cargo cancels the payment (Stripe's payments are only authorised at that point), and nothing has been spent.
 4. Every change is written to the voucher's history, with the balance after it.
 
 So a balance can't go below zero, and the same money can't be spent twice, even with two checkouts at the same moment, on any database.

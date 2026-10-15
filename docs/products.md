@@ -13,7 +13,9 @@ Products with a blueprint listed in `gift-vouchers.blueprints` (by default, `gif
 
 What the shopper pays and what the voucher is worth are always the same. Cargo lets shoppers edit a line item's data, so a chosen amount is held to the product's limits every time Cargo works out the cart, not only when it's added.
 
-If a Cargo discount applies to the voucher line, the shopper pays less and the voucher is still worth its full amount. Restrict your discounts to other products if that isn't what you want.
+If a Cargo discount applies to the voucher line, the shopper pays less. By default the voucher is still worth its full price: the shop pays the discount. Set `voucher_value` to `'paid'` in [the config](configuration.md#checkout) to make vouchers worth what was paid for them instead. To keep discounts off vouchers altogether, limit your discounts to other products in Cargo.
+
+Vouchers added with Cargo's own `{{ cart:add }}` skip the voucher form's checks (quantity, email, send date, design). Their details are still cleaned up when the voucher is made, and a chosen amount is still held to the product's limits, so nothing can go wrong, but use `{{ gift_vouchers:form }}` for voucher products.
 
 ## Expiry
 

@@ -399,6 +399,78 @@ class CheckoutTest extends TestCase
     }
 
     #[Test]
+    public function an_order_whose_voucher_was_spent_elsewhere_is_not_left_behind(): void
+    {
+        $this->product(3000);
+        $voucher = $this->voucher(2000);
+        $cart = $this->cart([['product' => 'book']]);
+        $this->carts()->add($cart, $voucher->code());
+        app(Ledger::class)->debit($voucher, 1500, 'another-order');
+
+        // As a gateway's webhook does (Cargo's checkout route deletes the
+        // order itself; webhooks don't).
+        try {
+            Order::makeFromCart(Cart::find($cart->id()))->save();
+            $this->fail('The order was placed.');
+        } catch (PreventCheckout) {
+            //
+        }
+
+        $this->assertSame(0, Order::query()->count());
+        $this->assertSame(500, $voucher->fresh()->balance);
+    }
+
+    #[Test]
+    public function vouchers_can_be_worth_what_was_paid_after_a_discount(): void
+    {
+        Mail::fake();
+        config(['gift-vouchers.voucher_value' => 'paid']);
+        $this->fixedVoucher(2500);
+        $cart = $this->cart([['product' => 'voucher-25', 'quantity' => 3]]);
+
+        // A 10% discount on the line, as Cargo would work it out.
+        $cart = Cart::find($cart->id());
+        $line = $cart->lineItems()->first();
+        $line->discountTotal(751);
+        $order = Order::makeFromCart($cart);
+        $order->save();
+        $order->status(OrderStatus::PaymentReceived)->save();
+
+        // £75.00 − £7.51 = £67.49, shared: the odd penny goes to the first.
+        $this->assertSame([2250, 2250, 2249], Voucher::orderBy('sequence')->pluck('initial_amount')->all());
+    }
+
+    #[Test]
+    public function by_default_vouchers_are_worth_their_price_whatever_the_discount(): void
+    {
+        Mail::fake();
+        $this->fixedVoucher(2500);
+        $cart = Cart::find($this->cart([['product' => 'voucher-25']])->id());
+        $cart->lineItems()->first()->discountTotal(500);
+        $order = Order::makeFromCart($cart);
+        $order->save();
+        $order->status(OrderStatus::PaymentReceived)->save();
+
+        $this->assertSame(2500, Voucher::sole()->initial_amount);
+    }
+
+    #[Test]
+    public function deleting_a_cancelled_order_respects_restore_on_cancel(): void
+    {
+        config(['gift-vouchers.restore_on_cancel' => false]);
+        $this->product(3000);
+        $voucher = $this->voucher(1000);
+        $cart = $this->cart([['product' => 'book']]);
+        $this->carts()->add($cart, $voucher->code());
+        $order = $this->checkout($cart);
+
+        $order->status(OrderStatus::Cancelled)->save();
+        $order->delete();
+
+        $this->assertSame(0, $voucher->fresh()->balance);
+    }
+
+    #[Test]
     public function the_checkout_route_cancels_the_order_and_puts_nothing_back_twice(): void
     {
         $this->product(3000);

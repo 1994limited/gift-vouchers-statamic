@@ -57,7 +57,7 @@ class ActionsController
         $errors = [];
 
         if ($this->products->isOpen($product)) {
-            $amount = Money::parse($this->text($request, 'amount', 30), $currency);
+            $amount = Money::parse($this->text($request, 'amount', 30), $currency, $cart->site()?->locale());
             $min = $this->products->min($product);
             $max = $this->products->max($product);
 
@@ -193,13 +193,11 @@ class ActionsController
             return $this->failed($request, VoucherException::because($code === null ? 'enter_code' : 'not_found'), 'code');
         }
 
-        $result = $this->presenter->forTag($voucher);
-
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'voucher' => $result]);
+            return response()->json(['success' => true, 'voucher' => $this->presenter->forTag($voucher, escape: false)]);
         }
 
-        return $this->back($request, '_redirect')->with('gift_vouchers_check', $result);
+        return $this->back($request, '_redirect')->with('gift_vouchers_check', $this->presenter->forTag($voucher));
     }
 
     /**
@@ -277,9 +275,13 @@ class ActionsController
     protected function back(Request $request, string $field): RedirectResponse
     {
         $to = (string) $this->text($request, $field);
+        $home = rtrim(url('/'), '/').'/';
 
-        $local = $to !== '' && (str_starts_with($to, '/') && ! str_starts_with($to, '//') && ! str_starts_with($to, '/\\')
-            || parse_url($to, PHP_URL_HOST) === $request->getHost());
+        // A path on this site, or a full URL that starts with this site's.
+        // Nothing with a backslash or control characters, which browsers
+        // read differently from PHP.
+        $safe = $to !== '' && ! preg_match('/[\\\\\x00-\x1F]/', $to);
+        $local = $safe && ((str_starts_with($to, '/') && ! str_starts_with($to, '//')) || str_starts_with($to, $home));
 
         return $local ? redirect($to) : back();
     }

@@ -81,6 +81,11 @@ class CargoSubscriber
         try {
             $this->orders->redeem($order);
         } catch (VoucherException $e) {
+            // Cargo has already saved the order. Its checkout route deletes it
+            // when checkout stops, but a gateway's webhook doesn't, so it's
+            // deleted here: an unpaid order can't be left behind.
+            $order->deleteQuietly();
+
             throw new PreventCheckout($e->getMessage());
         }
     }
@@ -120,7 +125,9 @@ class CargoSubscriber
      */
     public function orderDeleted(OrderDeleted $event): void
     {
-        if (! in_array($event->order->status(), [OrderStatus::PaymentPending, OrderStatus::Cancelled], true)) {
+        $status = $event->order->status();
+
+        if ($status !== OrderStatus::PaymentPending && ! ($status === OrderStatus::Cancelled && config('gift-vouchers.restore_on_cancel', true))) {
             return;
         }
 

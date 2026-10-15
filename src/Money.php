@@ -43,33 +43,116 @@ class Money
     }
 
     /**
-     * An amount typed by a person ("25", "25.5", "£1,000.00") in minor
-     * units, or null if it isn't one. Works with strings, never floats, so
-     * nothing is lost to rounding.
+     * An amount typed by a person ("25", "25.5", "£1,000.00", or "25,50" where
+     * the comma is the decimal separator) in minor units, or null if it isn't
+     * one. Works with strings, never floats, so nothing is lost to rounding.
+     *
+     * Separators are read for the locale: with both "." and ",", the last is
+     * the decimal point; with one, it's the locale's decimal separator, or
+     * thousands only in strict groups of three ("1,000"). Anything else that
+     * could be read two ways ("10,50" on an English site) is refused rather
+     * than guessed.
      */
-    public static function parse(mixed $input, string $currency): ?int
+    public static function parse(mixed $input, string $currency, ?string $locale = null): ?int
     {
         if (is_int($input)) {
             $input = (string) $input;
         }
 
-        if (! is_string($input)) {
+        if (! is_string($input) || strlen($input) > 40) {
             return null;
         }
 
-        // Currency symbols, spaces and thousands separators.
-        $value = preg_replace('/[^\d.\-]/u', '', str_replace(',', '', trim($input)));
+        // Currency symbols, letters and spaces out; digits and separators stay.
+        $value = (string) preg_replace('/[^\d.,\-]/u', '', trim($input));
         $decimals = self::decimals($currency);
+
+        // "25.00", as toDecimal() writes amounts for inputs, means the same in
+        // every locale. Anything else is read with the locale's separators.
+        $canonical = $decimals > 0 && preg_match('/^\d+\.\d{'.$decimals.'}$/', $value) === 1;
+        $value = $canonical ? $value : self::normaliseSeparators($value, self::decimalSeparator($locale));
+
+        if ($value === null) {
+            return null;
+        }
 
         $pattern = $decimals > 0 ? '/^(\d{1,10})(?:\.(\d{1,'.$decimals.'}))?$/' : '/^(\d{1,10})$/';
 
-        if ($value === '' || ! preg_match($pattern, (string) $value, $matches)) {
+        if ($value === '' || ! preg_match($pattern, $value, $matches)) {
             return null;
         }
 
         $minor = (int) $matches[1] * (10 ** $decimals) + (int) str_pad($matches[2] ?? '', $decimals, '0');
 
         return $minor <= self::MAX ? $minor : null;
+    }
+
+    /**
+     * The value with "." as its only decimal point and no thousands
+     * separators, or null if it can't be read for sure.
+     */
+    protected static function normaliseSeparators(string $value, string $decimal): ?string
+    {
+        $hasDot = str_contains($value, '.');
+        $hasComma = str_contains($value, ',');
+
+        if ($hasDot && $hasComma) {
+            $point = strrpos($value, '.') > strrpos($value, ',') ? '.' : ',';
+            $group = $point === '.' ? ',' : '.';
+
+            // Thousands before the point only, in groups of three.
+            [$whole, $fraction] = explode($point, $value, 2) + [1 => ''];
+
+            if (str_contains($fraction, $group) || str_contains($fraction, $point) || ! preg_match('/^\d{1,3}(\\'.$group.'\d{3})*$/', $whole)) {
+                return null;
+            }
+
+            return str_replace($group, '', $whole).'.'.$fraction;
+        }
+
+        if (! $hasDot && ! $hasComma) {
+            return $value;
+        }
+
+        $separator = $hasDot ? '.' : ',';
+
+        // Strict groups of three read as thousands, unless it's this locale's
+        // decimal point and there's only one ("1.500" is 1.5 in English).
+        $grouped = preg_match('/^\d{1,3}(\\'.$separator.'\d{3})+$/', $value) === 1;
+
+        if ($separator === $decimal && substr_count($value, $separator) === 1) {
+            return str_replace($separator, '.', $value);
+        }
+
+        if ($grouped) {
+            return str_replace($separator, '', $value);
+        }
+
+        return null;
+    }
+
+    /**
+     * The decimal separator people type in a locale: "." for en_GB, "," for de_DE.
+     */
+    public static function decimalSeparator(?string $locale = null): string
+    {
+        if ($locale === null) {
+            $site = SiteFacade::current();
+
+            if ($custom = $site?->attribute('decimal_separator')) {
+                return (string) $custom === ',' ? ',' : '.';
+            }
+
+            $locale = $site?->locale();
+        }
+
+        try {
+            $symbol = (new NumberFormatter($locale ?? 'en_GB', NumberFormatter::DECIMAL))->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+        } catch (Throwable) {
+            $symbol = '.';
+        }
+
+        return $symbol === ',' ? ',' : '.';
     }
 
     /**

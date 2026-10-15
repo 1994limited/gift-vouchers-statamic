@@ -10,7 +10,9 @@ The form to buy a voucher. The product is the entry in context, or `product="…
 
 | Variable | |
 | --- | --- |
+| `product`, `currency` | The product's ID, and the site's currency code |
 | `is_open`, `is_fixed` | Whether the shopper chooses the amount |
+| `has_variants`, `variants` | For set amounts with Cargo's variants: `key`, `name`, `price`. Post the chosen `key` as `variant` |
 | `min`, `max` | The limits as decimals for inputs (`10.00`) |
 | `min_formatted`, `max_formatted` | The limits to show (`£10.00`) |
 | `step` | `0.01` (or `1` for currencies without decimals) |
@@ -72,7 +74,7 @@ After a check: `code` (`•••• PQRS`), `code_hint`, `balance`, `balance_fo
 
 ## gift_vouchers:issued
 
-The vouchers bought on an order (`order="…"`, or the `id` in context): `code` (masked), `amount`, `amount_formatted`, `recipient_name`, `recipient_email`, `send_on`, `send_on_formatted`, `is_scheduled`, `is_sent`.
+The vouchers bought on an order (`order="…"`, or the `id` in context). It shows any order you give it, so only pass an order ID you trust, such as the one on Cargo's signed confirmation page, never one from the query string: `code` (masked), `amount`, `amount_formatted`, `recipient_name`, `recipient_email`, `send_on`, `send_on_formatted`, `is_scheduled`, `is_sent`.
 
 ## gift_vouchers:success
 

@@ -30,7 +30,7 @@ Every voucher, newest first: its code (the last four characters), recipient, amo
 
 ![Creating a voucher](images/cp-create.png)
 
-Choose the amount, expiry, design and recipient. Leave the code empty for a random one (best), or type one, such as `SPRING-FAIR-2026`. The note is kept in the voucher's history. Tick **Email the voucher** to send it now (or on its send date).
+Choose the amount, expiry, design and recipient. Leave the code empty for a random one (best), or type one, such as `SPRING-FAIR-2026`. The note is kept in the voucher's history. Tick **Email the voucher** to send it now, or on its **Send on** date. Without the tick, the voucher isn't emailed (the send date is ignored): print it, or email it later from its page.
 
 ## Orders
 

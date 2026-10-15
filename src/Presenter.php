@@ -83,24 +83,25 @@ class Presenter
      *
      * @return array<string, mixed>
      */
-    public function forTag(Voucher $voucher): array
+    public function forTag(Voucher $voucher, bool $escape = true): array
     {
         $status = $voucher->status();
+        $e = fn (?string $value) => $value === null ? null : ($escape ? e($value) : $value);
 
         return [
-            'code' => e($voucher->maskedCode()),
-            'code_hint' => e($voucher->code_hint),
+            'code' => $e($voucher->maskedCode()),
+            'code_hint' => $e($voucher->code_hint),
             'currency' => $voucher->currency,
             'balance' => $voucher->balance,
-            'balance_formatted' => e($voucher->formatted($voucher->balance)),
+            'balance_formatted' => $e($voucher->formatted($voucher->balance)),
             'initial_amount' => $voucher->initial_amount,
-            'initial_amount_formatted' => e($voucher->formatted($voucher->initial_amount)),
+            'initial_amount_formatted' => $e($voucher->formatted($voucher->initial_amount)),
             'status' => $status->value,
-            'status_label' => e($status->label()),
+            'status_label' => $e($status->label()),
             'is_usable' => $voucher->isUsable(),
             'is_expired' => $status === VoucherStatus::Expired,
             'expires_at' => $voucher->expires_at?->toIso8601String(),
-            'expires_formatted' => $voucher->expires_at ? e($voucher->expires_at->toFormattedDayDateString()) : null,
+            'expires_formatted' => $e($voucher->expires_at?->toFormattedDayDateString()),
         ];
     }
 

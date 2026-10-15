@@ -19,7 +19,7 @@ $voucher = $vouchers->create(
         'recipient_email' => 'grace@example.com',
         'sender_name' => 'Ada',
         'message' => 'Happy birthday!',
-        'send_on' => '2026-12-01',    // optional
+        'send_on' => '2026-12-01',    // optional, with send: true
     ],
     code: 'SPRING-FAIR-2026',         // or null for a random one
     expiresAt: now()->addYear(),
@@ -31,7 +31,7 @@ $voucher = $vouchers->create(
 $voucher->code();   // "SPRI-NGFA-IR20-26"
 ```
 
-Throws a `VoucherException` for a bad amount, or a custom code that's invalid or taken.
+Throws a `VoucherException` for a bad amount, or a custom code that's invalid or taken. With `send: true` and no email address (a recipient's, or an order's customer's), the voucher is made and then a `VoucherException` (`no_email`) is thrown: catch it if that can happen.
 
 ## Finding vouchers
 

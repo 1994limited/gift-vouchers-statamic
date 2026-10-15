@@ -148,7 +148,7 @@ class VouchersController extends CpController
             }],
         ]);
 
-        $amount = Money::parse($request->input('amount'), $currency);
+        $amount = Money::parse($request->input('amount'), $currency, $site->locale());
 
         if ($amount === null || $amount <= 0) {
             throw ValidationException::withMessages(['amount' => __('gift-vouchers::messages.errors.invalid_amount')]);
@@ -286,7 +286,7 @@ class VouchersController extends CpController
             'note' => ['required', 'string', 'max:500'],
         ]);
 
-        $amount = Money::parse($request->input('amount'), $voucher->currency);
+        $amount = Money::parse($request->input('amount'), $voucher->currency, $voucher->siteObject()?->locale());
 
         if ($amount === null || $amount <= 0) {
             throw ValidationException::withMessages(['amount' => __('gift-vouchers::messages.errors.invalid_amount')]);

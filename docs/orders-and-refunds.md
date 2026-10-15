@@ -20,7 +20,9 @@ If a voucher email can't be sent (the mail server's down), the order still goes 
 - **The order is cancelled** (its status changed to Cancelled). What it spent from vouchers is put back, and the vouchers bought on it are disabled, so they can't be spent. Turn this off with `restore_on_cancel`.
 - **A paid order is deleted.** Nothing is put back: deleting isn't refunding. Refund the order first.
 
-Moving a cancelled order back to Paid doesn't spend the vouchers again, or enable the vouchers it bought: do that by hand if you need to.
+Moving a cancelled order back to Paid doesn't spend the vouchers again, or enable the vouchers it bought: do that by hand if you need to (lower the vouchers it used on their pages, and enable the ones it bought).
+
+Disabling a voucher stops what's left on it being spent. It can't take back what was already spent from it on other orders.
 
 ## Refunds
 

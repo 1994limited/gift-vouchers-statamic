@@ -18,7 +18,8 @@ The first release.
 - **Orders**: money put back when an order fails or is cancelled; vouchers bought on cancelled or fully refunded orders disabled; **Refund to gift voucher** on orders; a Gift Vouchers section under the order's receipt; entries on the order's timeline; recipients on line items and packing slips.
 - **Control Panel**: Store → Gift Vouchers, with what's still owed, search, status filter and CSV; each voucher's history; showing codes; changing balances; editing, disabling, emailing and printing; creating vouchers by hand; permissions.
 - **Settings** for the voucher's style, logo, colour, wording, terms, designs and email.
-- **Your own views**: publish them, or point the print page, PDF and emails at your own Antlers or Blade templates.
+- **Your own views**: publish them, or point the print page, PDF and emails at your own Antlers or Blade templates. Every tag works in Blade too.
+- **`voucher_value`**: vouchers worth their price (the default) or what was paid after a Cargo discount.
 - **Events**, a **PHP API** and a **JSON API**.
 
 ### Safety
@@ -28,3 +29,5 @@ The first release.
 - **Using a code and checking a balance are rate limited**, so codes can't be guessed.
 - **Shopper-chosen amounts are re-checked** whenever Cargo works out the cart, so an edited line item can't change a voucher's price.
 - **What shoppers type is escaped** wherever it's shown, and read as plain text only.
+- **Amounts are read for the site's locale** ("10,50" in Germany), and ones that could be read two ways are refused, never guessed.
+- **Redirects after a form** only go to this site.

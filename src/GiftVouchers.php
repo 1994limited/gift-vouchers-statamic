@@ -42,6 +42,11 @@ class GiftVouchers
         bool $send = false,
         ?string $design = null,
     ): Voucher {
+        // A send date only means something if the voucher is to be emailed.
+        if (! $send) {
+            unset($details['send_on']);
+        }
+
         $voucher = $this->ledger->issue(
             amount: $amount,
             currency: $currency ?? Money::currency(),

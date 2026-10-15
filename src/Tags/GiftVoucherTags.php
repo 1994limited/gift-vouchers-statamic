@@ -64,7 +64,13 @@ class GiftVoucherTags extends Tags
             'min_formatted' => $open ? Money::format($products->min($product), $currency) : null,
             'max_formatted' => $open ? Money::format($products->max($product), $currency) : null,
             'step' => Money::decimals($currency) > 0 ? '0.'.str_repeat('0', Money::decimals($currency) - 1).'1' : '1',
-            'price' => $open ? null : Money::format((int) $product->price(), $currency),
+            'price' => $open || $product->isVariantProduct() ? null : Money::format((int) $product->price(), $currency),
+            'has_variants' => ! $open && $product->isVariantProduct(),
+            'variants' => ! $open && $product->isVariantProduct() ? $product->variantOptions()->map(fn ($variant) => [
+                'key' => e((string) $variant->key()),
+                'name' => e((string) $variant->name()),
+                'price' => Money::format((int) $variant->price(), $currency),
+            ])->values()->all() : [],
             'suggested' => $open ? collect($products->suggested($product, $currency))->map(fn (int $amount) => [
                 'value' => Money::toDecimal($amount, $currency),
                 'formatted' => Money::format($amount, $currency),

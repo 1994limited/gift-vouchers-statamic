@@ -11,7 +11,7 @@ Event::listen(function (VoucherRedeemed $event) {
 });
 ```
 
-All are in `NineteenNinetyFour\GiftVouchers\Events`, and dispatched after the database change has been saved.
+All are in `NineteenNinetyFour\GiftVouchers\Events`, and dispatched once the change has been written to the database (if you call the PHP API inside a database transaction of your own, that's before your transaction commits).
 
 | Event | Properties | When |
 | --- | --- | --- |
@@ -26,4 +26,4 @@ A `transaction` has `type` (a `TransactionType`), `amount` (negative for spendin
 
 ## Cargo's events
 
-Gift Vouchers listens to Cargo's own events (`CartRecalculated`, `OrderCreated`, `OrderPaymentReceived`, `OrderStatusUpdated`, `OrderDeleted`, `OrderRefunded`). Listeners of your own on those run alongside it.
+Gift Vouchers listens to Cargo's own events (`CartRecalculated`, `OrderCreated`, `OrderPaymentReceived`, `OrderStatusUpdated`, `OrderDeleted`, `OrderRefunded`, `OrderBlueprintFound` and `LineItemBlueprintFound`) and Statamic's `EntrySaving` (to save voucher products as digital). Listeners of your own on those run alongside it.

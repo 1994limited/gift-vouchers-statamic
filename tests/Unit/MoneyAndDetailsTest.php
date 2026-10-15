@@ -13,9 +13,9 @@ class MoneyAndDetailsTest extends TestCase
 {
     #[Test]
     #[DataProvider('amounts')]
-    public function typed_amounts_are_read_exactly(mixed $typed, string $currency, ?int $minor): void
+    public function typed_amounts_are_read_exactly(mixed $typed, string $currency, ?int $minor, string $locale = 'en_GB'): void
     {
-        $this->assertSame($minor, Money::parse($typed, $currency));
+        $this->assertSame($minor, Money::parse($typed, $currency, $locale));
     }
 
     public static function amounts(): array
@@ -40,6 +40,17 @@ class MoneyAndDetailsTest extends TestCase
             [25.5, 'GBP', null],
             [null, 'GBP', null],
             [['25'], 'GBP', null],
+            // Decimal commas, read for the locale, and never guessed.
+            ['10,50', 'GBP', null],
+            ['1,000', 'GBP', 100000],
+            ['1,000.50', 'GBP', 100050],
+            ['12,34,567', 'GBP', null],
+            ['10,50', 'EUR', 1050, 'de_DE'],
+            ['1.000,50', 'EUR', 100050, 'de_DE'],
+            ['1.000', 'EUR', 100000, 'de_DE'],
+            ['10.5', 'EUR', null, 'de_DE'],
+            ['25.00', 'EUR', 2500, 'de_DE'], // as the form's quick amounts write it
+            ['€ 25,5', 'EUR', 2550, 'fr_FR'],
         ];
     }
 

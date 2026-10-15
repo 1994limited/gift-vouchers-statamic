@@ -207,6 +207,23 @@ class ControlPanelTest extends TestCase
     }
 
     #[Test]
+    public function a_send_date_is_ignored_unless_the_voucher_is_to_be_emailed(): void
+    {
+        Mail::fake();
+        $this->actingAs($this->editor())->post(cp_route('gift-vouchers.store'), [
+            'amount' => '10',
+            'recipient_email' => 'grace@example.com',
+            'send_on' => now()->addWeek()->toDateString(),
+        ]);
+
+        $this->assertNull(Voucher::sole()->send_on);
+
+        $this->travel(8)->days();
+        $this->artisan('gift-vouchers:send')->assertSuccessful();
+        Mail::assertNothingSent();
+    }
+
+    #[Test]
     public function creating_by_hand_checks_what_was_entered(): void
     {
         $this->voucher(100, code: 'TAKEN-CODE');

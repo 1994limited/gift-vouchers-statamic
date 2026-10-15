@@ -53,10 +53,12 @@ How many months vouchers last after they're made, or `null` for no expiry. Each 
 
 ```php
 'max_per_cart' => 5,
+'voucher_value' => 'price',
 'pay_for_vouchers' => false,
 ```
 
 - `max_per_cart`: how many vouchers can be used on one order.
+- `voucher_value`: what a voucher is worth if a Cargo discount applied to it: `'price'`, its full price (the shop pays the discount), or `'paid'`, what the shopper paid after the discount.
 - `pay_for_vouchers`: whether vouchers can be spent on more vouchers.
 
 ## Orders

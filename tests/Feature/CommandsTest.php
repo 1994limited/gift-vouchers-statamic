@@ -82,6 +82,17 @@ class CommandsTest extends TestCase
     }
 
     #[Test]
+    public function send_does_nothing_but_succeed_when_emails_are_off(): void
+    {
+        Mail::fake();
+        config(['gift-vouchers.email.enabled' => false]);
+        $this->voucher(1000, ['recipient_email' => 'due@example.com', 'send_on' => now()->toDateString()]);
+
+        $this->artisan('gift-vouchers:send')->expectsOutputToContain('Emails are turned off')->assertSuccessful();
+        Mail::assertNothingSent();
+    }
+
+    #[Test]
     public function sending_is_scheduled(): void
     {
         $events = collect(app(Schedule::class)->events());

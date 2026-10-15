@@ -75,6 +75,14 @@ return [
 
     'max_per_cart' => 5,
 
+    /*
+    | What a voucher is worth if a Cargo discount applied to it:
+    | 'price', its full price (the shop pays the discount), or
+    | 'paid', what the shopper paid for it after the discount.
+    */
+
+    'voucher_value' => 'price',
+
     'pay_for_vouchers' => false,
 
     /*

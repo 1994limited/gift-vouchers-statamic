@@ -68,9 +68,14 @@ class PriceHook
      */
     protected static function current(): ?Closure
     {
-        $property = new ReflectionProperty(CalculateLineItems::class, 'priceHook');
-
-        $value = $property->getValue();
+        try {
+            $value = (new ReflectionProperty(CalculateLineItems::class, 'priceHook'))->getValue();
+        } catch (\Throwable) {
+            // A Cargo release has changed how it keeps the hook. Vouchers are
+            // still priced (install() sets the hook); a site's own hook just
+            // can't be kept alongside it, or a replaced hook noticed.
+            return static::$hook;
+        }
 
         return $value instanceof Closure ? $value : null;
     }

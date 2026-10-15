@@ -20,6 +20,12 @@ class SendScheduled extends Command
 
     public function handle(Delivery $delivery): int
     {
+        if (! config('gift-vouchers.email.enabled', true)) {
+            $this->components->info('Emails are turned off (gift-vouchers.email.enabled), so nothing was sent.');
+
+            return self::SUCCESS;
+        }
+
         $due = $delivery->due()->count();
         $sent = $delivery->sendDue();
 

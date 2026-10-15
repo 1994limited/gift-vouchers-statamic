@@ -260,6 +260,9 @@ class ActionsTest extends TestCase
             ->assertJsonPath('voucher.status', 'active')
             ->assertJsonMissingPath('voucher.id');
 
+        // JSON isn't HTML: nothing in it is escaped.
+        $this->postJson('/!/gift-vouchers/check', ['code' => $voucher->code()])->assertJsonPath('voucher.code', '•••• '.$voucher->code_hint);
+
         $this->postJson('/!/gift-vouchers/check', ['code' => 'NOPE'])->assertStatus(422);
     }
 
@@ -308,6 +311,9 @@ class ActionsTest extends TestCase
         $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'voucher-25', '_redirect' => '//evil.example/'])->assertRedirect('/shop');
         $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'voucher-25', '_redirect' => '/\\evil.example/'])->assertRedirect('/shop');
         $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'nope', '_error_redirect' => '/oops'])->assertRedirect('/oops');
+        $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'voucher-25', '_redirect' => 'https://evil.example\\@localhost/'])->assertRedirect('/shop');
+        $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'voucher-25', '_redirect' => 'http://localhost.evil.example/'])->assertRedirect('/shop');
+        $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'voucher-25', '_redirect' => 'http://localhost/basket'])->assertRedirect('http://localhost/basket');
     }
 
     #[Test]
