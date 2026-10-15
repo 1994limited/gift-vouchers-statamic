@@ -122,7 +122,18 @@ class GiftVoucherTags extends Tags
      * The vouchers used on the cart (or on an order, with order="…"), and
      * what each covers.
      */
-    public function applied(): array
+    public function applied(): array|string
+    {
+        $rows = $this->appliedRows();
+
+        // An empty loop draws nothing (Antlers would draw the contents once).
+        return $rows === [] && $this->isPair ? '' : $rows;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function appliedRows(): array
     {
         $data = $this->target();
 
@@ -164,7 +175,7 @@ class GiftVoucherTags extends Tags
      */
     public function hasApplied(): bool
     {
-        return count($this->applied()) > 0;
+        return count($this->appliedRows()) > 0;
     }
 
     /**
@@ -173,15 +184,16 @@ class GiftVoucherTags extends Tags
      * The vouchers bought on an order, for its confirmation page. Codes
      * aren't shown: they're emailed to the recipient.
      */
-    public function issued(): array
+    public function issued(): array|string
     {
         $order = ($id = $this->params->get('order', $this->context->get('id'))) ? Order::find((string) $id) : null;
+        $vouchers = $order ? app(OrderVouchers::class)->issuedFor($order) : collect();
 
-        if (! $order) {
-            return [];
+        if ($vouchers->isEmpty()) {
+            return $this->isPair ? '' : [];
         }
 
-        return app(OrderVouchers::class)->issuedFor($order)->map(fn (Voucher $voucher) => [
+        return $vouchers->map(fn (Voucher $voucher) => [
             'code' => e($voucher->maskedCode()),
             'amount' => $voucher->initial_amount,
             'amount_formatted' => e($voucher->formatted($voucher->initial_amount)),
