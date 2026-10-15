@@ -23,7 +23,7 @@ The examples are Antlers, but every tag works in Blade too, with Statamic's tag 
 {!! Statamic::tag('gift_vouchers:preview')->param('product', $id)->fetch() !!}
 ```
 
-Inside a tag pair, the tag's variables are Blade variables (`$price`, `$errors['amount']`…). Values from the tags are already escaped, so `{{ }}` is right for text; use `{!! !!}` only for tags that return HTML, such as `preview` and `artwork`.
+Inside a tag pair, the tag's variables are Blade variables (`$price`, `$min_formatted`, `$old`…). For error messages in Blade, use `{{ Statamic::tag('gift_vouchers:error')->param('field', 'amount')->fetch() }}`, as `$errors` is Laravel's own. Values from the tags are already escaped, so `{{ }}` is right for text; use `{!! !!}` only for tags that return HTML, such as `preview` and `artwork`.
 
 The voucher itself (the printable page, PDF and emails) is drawn with Blade views, which you can publish or swap for Antlers templates: see [Designs](designs.md). The partials for [Cargo's prebuilt checkout](prebuilt-checkout.md) are Antlers, as that checkout is.
 
