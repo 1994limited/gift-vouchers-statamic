@@ -2,6 +2,7 @@
 
 namespace NineteenNinetyFour\GiftVouchers\Tests\Feature;
 
+use DuncanMcClean\Cargo\Facades\Cart;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
@@ -188,8 +189,14 @@ class TagsTest extends TestCase
         app(CartVouchers::class)->add($cart, $voucher->code());
         view()->addLocation(__DIR__.'/../__fixtures__/views');
 
-        $html = view('blade-tags')->render();
+        Mail::fake();
+        $order = $this->checkout($this->cart([['product' => 'voucher-25', Products::RECIPIENT_NAME => "Seán O'Brien <b>"]]));
+        Cart::setCurrent(Cart::find($cart->id()));
 
+        $html = view('blade-tags', ['orderId' => $order->id()])->render();
+
+        // Escaped once: the apostrophe isn't mangled, the markup isn't run.
+        $this->assertStringContainsString('[Seán O&#039;Brien &lt;b&gt;]', $html);
         $this->assertStringContainsString('/!/gift-vouchers/cart/add', $html);
         $this->assertStringContainsString('Pay £25.00', $html);
         $this->assertStringContainsString('/!/gift-vouchers/cart/redeem', $html);
