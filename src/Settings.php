@@ -55,9 +55,15 @@ class Settings
      */
     public static function colour(): string
     {
-        $colour = self::get('accent_colour', '#1f2937');
+        return self::validColour(self::get('accent_colour')) ?? '#1f2937';
+    }
 
-        return preg_match('/^#(?:[0-9a-fA-F]{3}){1,2}$/', (string) $colour) ? $colour : '#1f2937';
+    /**
+     * A CSS hex colour, or null if it isn't one (so it can't break out of CSS).
+     */
+    public static function validColour(mixed $colour): ?string
+    {
+        return is_string($colour) && preg_match('/^#(?:[0-9a-fA-F]{3}){1,2}$/', $colour) ? $colour : null;
     }
 
     /**
@@ -65,7 +71,15 @@ class Settings
      */
     public static function onColour(): string
     {
-        $hex = ltrim(self::colour(), '#');
+        return self::contrastFor(self::colour());
+    }
+
+    /**
+     * Dark or white text, whichever has more contrast with a colour.
+     */
+    public static function contrastFor(string $colour): string
+    {
+        $hex = ltrim(self::validColour($colour) ?? '#1f2937', '#');
 
         if (strlen($hex) === 3) {
             $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];

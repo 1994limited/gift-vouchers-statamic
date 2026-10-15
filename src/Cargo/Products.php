@@ -32,6 +32,8 @@ class Products
 
     public const SEND_ON = 'voucher_send_on';
 
+    public const DESIGN = 'voucher_design';
+
     public function isVoucher(Product|Entry|null $product): bool
     {
         if (! $product || ! in_array($product->collectionHandle(), (array) config('statamic.cargo.products.collections', ['products']), true)) {

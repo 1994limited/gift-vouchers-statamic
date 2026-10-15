@@ -8,12 +8,17 @@ use DuncanMcClean\Cargo\Facades\Cart;
 use DuncanMcClean\Cargo\Facades\Order;
 use DuncanMcClean\Cargo\Facades\Product;
 use Illuminate\Support\MessageBag;
+use NineteenNinetyFour\GiftVouchers\Artwork;
 use NineteenNinetyFour\GiftVouchers\Cargo\CartVouchers;
 use NineteenNinetyFour\GiftVouchers\Cargo\OrderVouchers;
 use NineteenNinetyFour\GiftVouchers\Cargo\Products;
+use NineteenNinetyFour\GiftVouchers\Design;
+use NineteenNinetyFour\GiftVouchers\Designs;
 use NineteenNinetyFour\GiftVouchers\Details;
 use NineteenNinetyFour\GiftVouchers\Money;
+use NineteenNinetyFour\GiftVouchers\Settings;
 use NineteenNinetyFour\GiftVouchers\Voucher;
+use Statamic\Facades\Site;
 use Statamic\Tags\Concerns\RendersForms;
 use Statamic\Tags\Tags;
 
@@ -69,11 +74,134 @@ class GiftVoucherTags extends Tags
             'today' => CarbonImmutable::today()->toDateString(),
             'earliest_send_on' => CarbonImmutable::tomorrow()->toDateString(),
             'latest_send_on' => CarbonImmutable::today()->addYear()->toDateString(),
-            'old' => $this->old(['amount', 'variant', 'quantity', 'recipient_name', 'recipient_email', 'sender_name', 'message', 'send_on']),
+            'designs' => $this->designs(),
+            'has_designs' => app(Designs::class)->hasChoice(),
+            'old' => $this->old(['amount', 'variant', 'quantity', 'recipient_name', 'recipient_email', 'sender_name', 'message', 'send_on', 'design']),
             'errors' => $this->errorMessages(),
         ];
 
         return $this->actionForm('cart/add', ['product' => $product->id()], $data);
+    }
+
+    /**
+     * {{ gift_vouchers:designs }} {{ handle }} {{ name }} {{ preview }} {{ /gift_vouchers:designs }}
+     *
+     * The designs shoppers can choose from, with a picture of each.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function designs(): array
+    {
+        $old = session()->getOldInput('design');
+        $designs = app(Designs::class)->all()->values();
+
+        return $designs->map(fn (Design $design, int $index) => [
+            'handle' => e($design->handle),
+            'name' => e($design->name),
+            'style' => $design->kind() ?? Design::PLAIN,
+            'colour' => $design->colour,
+            'preview' => e($design->preview()),
+            'is_default' => $index === 0,
+            'is_selected' => is_string($old) ? $old === $design->handle : $index === 0,
+        ])->all();
+    }
+
+    /**
+     * {{ gift_vouchers:preview product="{{ id }}" }}
+     *
+     * The voucher card as the recipient will get it, filled in from the
+     * voucher form as the shopper types (amount, names, design). Exactly the
+     * card on the printable voucher and PDF. form="id" ties it to a form by
+     * its id, if there's more than one on the page; scripts="false" leaves
+     * the script out (add {{ gift_vouchers:preview_script }} yourself).
+     */
+    public function preview(): string
+    {
+        $product = $this->product();
+
+        if (! $product) {
+            return '';
+        }
+
+        $products = app(Products::class);
+        $currency = Money::currency();
+        $designs = app(Designs::class);
+        $design = $designs->find(is_string($old = session()->getOldInput('design')) ? $old : null);
+
+        $amount = $products->isOpen($product)
+            ? (Money::parse(session()->getOldInput('amount'), $currency) ?? $products->suggested($product, $currency)[0] ?? $products->min($product))
+            : (int) $product->price();
+
+        $months = $products->expiryMonths($product);
+        $logo = Settings::logo();
+
+        $html = view('gift-vouchers::partials.card', [
+            'preview' => true,
+            'forPdf' => false,
+            'colour' => $design->colour,
+            'artworkKind' => $design->kind(),
+            'artwork' => $design->previewArtworkUrl(),
+            'logo' => $logo?->url(),
+            'logoAlt' => Site::current()->name(),
+            'siteName' => Site::current()->name(),
+            'title' => $design->title ?? Settings::text('voucher_title'),
+            'amount' => Money::format($amount, $currency),
+            'recipientName' => null,
+            'senderName' => null,
+            'code' => 'XXXX-XXXX-XXXX-XXXX',
+            'serial' => 'XXXX',
+            'expires' => $months ? now()->addMonths($months)->toFormattedDayDateString() : null,
+        ])->render();
+
+        $attributes = sprintf(
+            ' data-currency="%s" data-locale="%s" data-amount="%s" data-for-label="%s" data-from-label="%s" data-designs="%s"%s',
+            e($currency),
+            e(str_replace('_', '-', Site::current()->locale())),
+            e(Money::format($amount, $currency)),
+            e(__('gift-vouchers::messages.document.for_label')),
+            e(__('gift-vouchers::messages.document.from_label')),
+            e(json_encode($designs->all()->map(fn (Design $d) => [
+                'kind' => $d->kind() ?? Design::PLAIN,
+                'title' => $d->title ?? Settings::text('voucher_title'),
+                'colour' => $d->colour,
+                'artwork' => $d->previewArtworkUrl(),
+            ]))),
+            ($form = $this->params->get('form')) ? ' data-form="'.e($form).'"' : '',
+        );
+
+        $html = str_replace(' data-gift-vouchers-preview ', ' data-gift-vouchers-preview'.$attributes.' ', $html);
+
+        return $html.($this->params->bool('scripts', true) ? $this->previewScript() : '');
+    }
+
+    /**
+     * {{ gift_vouchers:preview_script }}: the preview's script tag, if you
+     * place it yourself.
+     */
+    public function previewScript(): string
+    {
+        $version = substr(sha1_file(__DIR__.'/../../resources/js/frontend/preview.js'), 0, 8);
+
+        return '<script src="'.e(route('statamic.gift-vouchers.script', ['v' => $version])).'" defer></script>';
+    }
+
+    /**
+     * {{ gift_vouchers:artwork }} or {{ gift_vouchers:artwork design="birthday" seed="…" }}
+     *
+     * A design's engraved card as inline SVG, for a site's own pages (a
+     * voucher preview, say). Empty for image and plain designs.
+     */
+    public function artwork(): string
+    {
+        $design = app(Designs::class)->find($this->params->get('design'));
+
+        if ($design->kind() !== Design::ENGRAVED) {
+            return '';
+        }
+
+        $artwork = $design->artworkFor((string) $this->params->get('seed', $design->handle));
+
+        return $this->params->get('shape') === 'emblem' ? $artwork->emblem() : $artwork->card();
     }
 
     /**

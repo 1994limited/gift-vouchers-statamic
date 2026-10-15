@@ -41,8 +41,8 @@ class DocumentsTest extends TestCase
             ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
             ->assertSee('£25.00')
             ->assertSee('PRIN-TME1-234')
-            ->assertSee('For Grace')
-            ->assertSee('From Ada')
+            ->assertSeeText('For Grace')
+            ->assertSeeText('From Ada')
             ->assertSee('Happy birthday!')
             ->assertSee('Download PDF');
     }
@@ -218,5 +218,21 @@ class DocumentsTest extends TestCase
         app(Delivery::class)->send($this->voucher(2500, $this->details()));
 
         Mail::assertQueued(VoucherMail::class, fn ($mail) => $mail->hasTo('grace@example.com') && $mail->hasBcc('shop@example.com') && $mail->queue === 'mail');
+    }
+
+    #[Test]
+    public function the_print_page_and_pdf_can_use_the_sites_own_antlers_template(): void
+    {
+        view()->addLocation(__DIR__.'/../__fixtures__/views');
+        config(['gift-vouchers.views.print' => 'my-voucher', 'gift-vouchers.views.pdf' => 'my-voucher']);
+
+        $voucher = $this->voucher(2500, ['recipient_name' => '<b>Grace</b>'], 'MY-OWN-1234');
+
+        $this->get($voucher->printUrl())
+            ->assertSee('My voucher £25.00')
+            ->assertSee('MYOW-N123-4')
+            ->assertSee('&lt;b&gt;Grace&lt;/b&gt;', false);
+
+        $this->assertStringStartsWith('%PDF-', app(Pdf::class)->render($voucher));
     }
 }

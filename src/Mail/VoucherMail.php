@@ -34,8 +34,8 @@ class VoucherMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            html: 'gift-vouchers::emails.voucher',
-            text: 'gift-vouchers::emails.voucher-text',
+            html: config('gift-vouchers.views.email', 'gift-vouchers::emails.voucher'),
+            text: config('gift-vouchers.views.email_text', 'gift-vouchers::emails.voucher-text'),
             with: app(Presenter::class)->forDocument($this->voucher, forEmail: true),
         );
     }

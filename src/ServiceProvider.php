@@ -90,6 +90,7 @@ class ServiceProvider extends AddonServiceProvider
         $this->app->singleton(Presenter::class);
         $this->app->singleton(Pdf::class);
         $this->app->singleton(GiftVouchers::class);
+        $this->app->singleton(Designs::class);
     }
 
     public function bootAddon(): void

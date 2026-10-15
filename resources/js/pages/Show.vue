@@ -236,6 +236,10 @@ export default {
                             <dd class="whitespace-pre-line">{{ voucher.message }}</dd>
                         </div>
                         <div>
+                            <dt class="text-gray-600 dark:text-gray-400!">{{ __('Design') }}</dt>
+                            <dd>{{ voucher.design }}</dd>
+                        </div>
+                        <div>
                             <dt class="text-gray-600 dark:text-gray-400!">{{ __('Use by') }}</dt>
                             <dd>{{ voucher.expires_at || __('No expiry date') }}</dd>
                         </div>

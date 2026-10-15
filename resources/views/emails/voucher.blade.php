@@ -24,8 +24,18 @@
                         @endif
                     </td>
                 </tr>
+                @if($headerImage)
+                    <tr><td style="padding:0;"><img src="{{ $headerImage }}" alt="" width="560" style="display:block; width:100%; height:auto; border:0;"></td></tr>
+                @endif
                 <tr>
                     <td style="padding:28px;">
+                        @if($emblemPng)
+                            {{-- $message is Laravel's mail message: the emblem goes in the email itself. --}}
+                            <img src="{{ $message->embedData($emblemPng, 'design.png', 'image/png') }}" alt="" width="120" height="120" style="display:block; margin:0 auto 16px; border:0;">
+                        @endif
+                        @if($designTitle)
+                            <p style="margin:0 0 6px; font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:{{ $colour }}; text-align:{{ $emblemPng ? 'center' : 'left' }};">{{ $designTitle }}</p>
+                        @endif
                         <h1 style="margin:0 0 12px; font-size:22px; line-height:1.3; color:#111827;">{{ $heading }}</h1>
                         <p style="margin:0 0 20px; font-size:16px; line-height:1.5;">{{ $intro }}</p>
 

@@ -23,6 +23,7 @@ return [
         'not_a_voucher' => 'That isn’t a gift voucher we sell.',
         'amount_range' => 'Choose an amount from :min to :max.',
         'choose_amount' => 'Choose an amount.',
+        'bad_design' => 'Choose one of the designs.',
         'quantity' => 'Choose a quantity from 1 to :max.',
         'bad_email' => 'Enter a valid email address for the recipient.',
         'bad_date' => 'Choose a send date from tomorrow up to a year away, or leave it empty to send it straight away.',
@@ -51,6 +52,8 @@ return [
         'open' => 'View and print your voucher',
         'for' => 'For :name',
         'from' => 'From :name',
+        'for_label' => 'For',
+        'from_label' => 'From',
         'code' => 'Your code',
         'balance' => 'Balance left',
         'expires' => 'Use by',
@@ -98,6 +101,7 @@ return [
         'sender_name' => 'From',
         'message' => 'Message',
         'send_on' => 'Send on',
+        'design' => 'Design',
     ],
 
     'permissions' => [
@@ -110,6 +114,7 @@ return [
     'cp' => [
         'gift_vouchers' => 'Gift Vouchers',
         'gift_voucher' => 'Gift Voucher',
+        'default_design' => 'Standard',
         'refund_action' => 'Refund to gift voucher',
         'refund_instructions' => 'Put this much back on the gift vouchers used on this order, the last one spent first. Refund any card payment with Refund.',
         'refunded' => '{1} :amount refunded to 1 gift voucher.|[2,*] :amount refunded to :count gift vouchers.',

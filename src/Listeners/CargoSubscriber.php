@@ -178,6 +178,7 @@ class CargoSubscriber
             Products::SENDER_NAME => 'sender_name',
             Products::MESSAGE => 'message',
             Products::SEND_ON => 'send_on',
+            Products::DESIGN => 'design',
         ];
 
         foreach ($fields as $handle => $label) {

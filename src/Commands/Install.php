@@ -4,6 +4,7 @@ namespace NineteenNinetyFour\GiftVouchers\Commands;
 
 use DuncanMcClean\Cargo\Facades\TaxClass;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Statamic\Console\RunsInPlease;
 use Statamic\Facades\Collection;
@@ -42,7 +43,9 @@ class Install extends Command
         $this->installTaxClass();
 
         if (! $this->option('no-migrate')) {
-            $this->call('migrate', ['--force' => true]);
+            // Through Laravel's console, not $this->call(): under `php please`
+            // that reaches Statamic's console, which has no migrate command.
+            Artisan::call('migrate', ['--force' => true], $this->output);
         }
 
         $this->newLine();

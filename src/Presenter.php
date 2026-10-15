@@ -41,10 +41,11 @@ class Presenter
         $replace = $this->replacements($voucher);
         $site = $voucher->siteObject();
         $logo = Settings::logo();
+        $design = app(Designs::class)->find($voucher->design);
 
         return [
             'voucher' => $voucher,
-            'title' => Settings::text('voucher_title', $replace),
+            'title' => $design->title ?? Settings::text('voucher_title', $replace),
             'heading' => Settings::text('email_heading', $replace),
             'intro' => Settings::text('email_intro', $replace),
             'howTo' => Settings::text('how_to_redeem', $replace),
@@ -56,8 +57,14 @@ class Presenter
             'senderName' => $voucher->sender_name,
             'giftMessage' => $voucher->message,
             'expires' => $replace['expires'] ?: null,
-            'colour' => Settings::colour(),
-            'onColour' => Settings::onColour(),
+            'design' => $design,
+            'artwork' => $forEmail ? null : $design->artwork($voucher->id),
+            'artworkKind' => $design->kind(),
+            'headerImage' => $forEmail && $design->kind() === Design::IMAGE ? $design->image->absoluteUrl() : null,
+            'emblemPng' => $forEmail ? $design->emblemPng() : null,
+            'designTitle' => $design->title,
+            'colour' => $design->colour,
+            'onColour' => $design->onColour(),
             'logo' => $forEmail ? $logo?->absoluteUrl() : Settings::logoDataUri(),
             'logoAlt' => $replace['site'],
             'siteName' => $replace['site'],

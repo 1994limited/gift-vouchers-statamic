@@ -130,6 +130,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Views
+    |--------------------------------------------------------------------------
+    |
+    | The views the voucher is drawn with. To change a little, publish the
+    | addon's (php artisan vendor:publish --tag=gift-vouchers-views) and edit
+    | them. To start again in Antlers, point these at your own templates,
+    | such as 'vouchers/print' for resources/views/vouchers/print.antlers.html.
+    | Antlers doesn't escape: use | sanitize on anything shoppers typed.
+    |
+    */
+
+    'views' => [
+        'print' => 'gift-vouchers::voucher',
+        'pdf' => 'gift-vouchers::voucher',
+        'email' => 'gift-vouchers::emails.voucher',
+        'email_text' => 'gift-vouchers::emails.voucher-text',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Rate limits
     |--------------------------------------------------------------------------
     |

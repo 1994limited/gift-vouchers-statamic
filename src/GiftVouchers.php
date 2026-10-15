@@ -40,6 +40,7 @@ class GiftVouchers
         ?string $site = null,
         ?string $note = null,
         bool $send = false,
+        ?string $design = null,
     ): Voucher {
         $voucher = $this->ledger->issue(
             amount: $amount,
@@ -47,6 +48,7 @@ class GiftVouchers
             attributes: array_merge(Details::from($details)->toAttributes(), [
                 'expires_at' => $expiresAt,
                 'site' => $site,
+                'design' => app(Designs::class)->find($design)->handle,
                 'created_by' => User::current()?->id(),
                 'notes' => $note,
             ]),

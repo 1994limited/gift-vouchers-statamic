@@ -12,6 +12,7 @@ export default {
 
     props: {
         sites: { type: Array, required: true },
+        designs: { type: Array, default: () => [] },
         defaultExpiry: { type: String, default: null },
         today: { type: String, required: true },
         limits: { type: Object, required: true },
@@ -21,6 +22,7 @@ export default {
     setup(props) {
         const form = useForm({
             site: props.sites[0]?.handle ?? null,
+            design: props.designs[0]?.value ?? null,
             amount: '',
             recipient_name: '',
             recipient_email: '',
@@ -77,6 +79,9 @@ export default {
                     </Field>
                     <Field :label="__('Use by')" :instructions="__('Leave empty for no expiry date.')" :error="form.errors.expires_at">
                         <Input v-model="form.expires_at" type="date" :min="today" />
+                    </Field>
+                    <Field v-if="designs.length > 1" class="sm:col-span-2" :label="__('Design')" :error="form.errors.design">
+                        <Select v-model="form.design" :options="designs" option-label="label" option-value="value" />
                     </Field>
                     <Field class="sm:col-span-2" :label="__('Code')" :instructions="__('Leave empty for a random code (best). Or type one, 6 to 32 letters and numbers.')" :error="form.errors.code">
                         <Input v-model="form.code" class="font-mono" autocomplete="off" />

@@ -7,6 +7,7 @@ use DuncanMcClean\Cargo\Orders\LineItem;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use NineteenNinetyFour\GiftVouchers\Delivery;
+use NineteenNinetyFour\GiftVouchers\Designs;
 use NineteenNinetyFour\GiftVouchers\Details;
 use NineteenNinetyFour\GiftVouchers\Events\VoucherUpdated;
 use NineteenNinetyFour\GiftVouchers\Ledger;
@@ -84,6 +85,7 @@ class OrderVouchers
                 ]);
 
                 $months = $this->products->expiryMonths($lineItem->product());
+                $design = app(Designs::class)->find((string) $lineItem->get(Products::DESIGN) ?: null)->handle;
 
                 for ($sequence = 1; $sequence <= max(1, (int) $lineItem->quantity()); $sequence++) {
                     $attributes = [
@@ -99,6 +101,7 @@ class OrderVouchers
                     try {
                         $made->push($this->ledger->issue($amount, $currency, array_merge($attributes, $details->toAttributes(), [
                             'site' => $order->site()?->handle(),
+                            'design' => $design,
                             'product_id' => $lineItem->product()?->id(),
                             'expires_at' => $months ? now()->addMonths($months)->endOfDay() : null,
                         ])));

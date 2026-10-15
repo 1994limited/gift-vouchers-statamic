@@ -22,7 +22,7 @@ class Pdf
         $options->setTempDir(sys_get_temp_dir());
 
         $dompdf = new Dompdf($options);
-        $dompdf->loadHtml(view('gift-vouchers::voucher', array_merge(
+        $dompdf->loadHtml(view(config('gift-vouchers.views.pdf', 'gift-vouchers::voucher'), array_merge(
             app(Presenter::class)->forDocument($voucher),
             ['forPdf' => true],
         ))->render());

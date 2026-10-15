@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use NineteenNinetyFour\GiftVouchers\Cargo\PriceHook;
+use NineteenNinetyFour\GiftVouchers\Designs;
 use NineteenNinetyFour\GiftVouchers\Details;
 use NineteenNinetyFour\GiftVouchers\Events\VoucherUpdated;
 use NineteenNinetyFour\GiftVouchers\GiftVouchers;
@@ -110,6 +111,7 @@ class VouchersController extends CpController
 
         return Inertia::render('gift-vouchers::Create', [
             'sites' => $this->sites(),
+            'designs' => app(Designs::class)->all()->map(fn ($d) => ['value' => $d->handle, 'label' => $d->name])->values()->all(),
             'defaultExpiry' => is_numeric($months) && $months > 0 ? now()->addMonths((int) $months)->toDateString() : null,
             'today' => now()->toDateString(),
             'limits' => ['name' => Details::NAME_LIMIT, 'message' => Details::MESSAGE_LIMIT],
@@ -139,6 +141,11 @@ class VouchersController extends CpController
             'code' => ['nullable', 'string', 'max:64'],
             'note' => ['nullable', 'string', 'max:500'],
             'send' => ['nullable', 'boolean'],
+            'design' => ['nullable', 'string', function ($attribute, $value, $fail) {
+                if (! app(Designs::class)->exists($value)) {
+                    $fail(__('gift-vouchers::messages.errors.bad_design'));
+                }
+            }],
         ]);
 
         $amount = Money::parse($request->input('amount'), $currency);
@@ -163,6 +170,7 @@ class VouchersController extends CpController
                 site: $site->handle(),
                 note: $request->input('note'),
                 send: $send,
+                design: $request->input('design'),
             );
         } catch (VoucherException $e) {
             throw ValidationException::withMessages([in_array($e->reason, ['invalid_custom_code', 'duplicate_code']) ? 'code' : 'amount' => $e->getMessage()]);
@@ -198,6 +206,7 @@ class VouchersController extends CpController
                 'created_by' => $this->userName($voucher->created_by),
                 'order' => $order ? ['number' => $order->orderNumber(), 'url' => $order->editUrl()] : ($voucher->order_id ? ['number' => null, 'url' => null] : null),
                 'is_disabled' => $voucher->disabled_at !== null,
+                'design' => app(Designs::class)->find($voucher->design)->name,
             ]),
             'transactions' => $voucher->transactions()->get()->reverse()->values()->map(fn (Transaction $t) => $this->transaction($voucher, $t))->all(),
             'canEdit' => $canEdit,

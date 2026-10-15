@@ -18,6 +18,10 @@ Route::middleware('throttle:gift-vouchers-codes')->group(function () {
     Route::post('check', [ActionsController::class, 'check'])->name('check');
 });
 
+// The live preview's script, and each design's card artwork for it.
+Route::get('preview.js', [VoucherDocumentController::class, 'script'])->name('script');
+Route::get('designs/{design}/artwork', [VoucherDocumentController::class, 'designArtwork'])->name('design.artwork');
+
 // The voucher to print, or as a PDF. The links are signed: they show the
 // code, so they're only in the voucher's email and the Control Panel.
 Route::middleware('signed')->group(function () {

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use NineteenNinetyFour\GiftVouchers\Cargo\CartVouchers;
 use NineteenNinetyFour\GiftVouchers\Cargo\Products;
+use NineteenNinetyFour\GiftVouchers\Designs;
 use NineteenNinetyFour\GiftVouchers\Details;
 use NineteenNinetyFour\GiftVouchers\Http\ReadsText;
 use NineteenNinetyFour\GiftVouchers\Money;
@@ -98,6 +99,12 @@ class ActionsController
             $errors['recipient_email'] = __('gift-vouchers::messages.errors.bad_email');
         }
 
+        $design = $this->text($request, 'design', 100);
+
+        if ($design !== null && ! app(Designs::class)->exists($design)) {
+            $errors['design'] = __('gift-vouchers::messages.errors.bad_design');
+        }
+
         if (Details::isBadDate($input['send_on'])) {
             $errors['send_on'] = __('gift-vouchers::messages.errors.bad_date');
         }
@@ -120,6 +127,7 @@ class ActionsController
             Products::SENDER_NAME => $details->senderName,
             Products::MESSAGE => $details->message,
             Products::SEND_ON => $details->sendOn?->toDateString(),
+            Products::DESIGN => $design,
             'product' => $product->id(),
             'variant' => $variant?->key(),
             'quantity' => (int) $quantity,

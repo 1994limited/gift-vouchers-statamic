@@ -27,6 +27,7 @@ return new class extends Migration
             $table->unsignedBigInteger('balance');
 
             $table->string('site')->nullable();
+            $table->string('design')->nullable();
             $table->timestamp('expires_at')->nullable()->index();
             $table->timestamp('disabled_at')->nullable();
 

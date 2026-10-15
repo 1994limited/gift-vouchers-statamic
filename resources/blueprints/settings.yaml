@@ -7,6 +7,16 @@ tabs:
         instructions: 'How vouchers look on the printable page and the PDF. Placeholders: :amount, :recipient_name, :sender_name, :expires and :site.'
         fields:
           -
+            handle: style
+            field:
+              type: button_group
+              display: Style
+              instructions: 'Engraved draws fine banknote-style patterns in your brand colour, a little different on every voucher. Plain leaves them off.'
+              options:
+                engraved: Engraved
+                plain: Plain
+              default: engraved
+          -
             handle: logo
             field:
               type: assets
@@ -45,6 +55,77 @@ tabs:
               type: textarea
               display: 'Terms'
               instructions: 'Small print shown at the bottom of vouchers and emails. Leave empty for none.'
+  designs:
+    display: Designs
+    sections:
+      -
+        display: 'Designs to choose from'
+        instructions: 'Offer shoppers a choice of design, such as Birthday, Christmas or Thank you. Leave this empty for one design, set on the Voucher tab. The first design is the default.'
+        fields:
+          -
+            handle: designs
+            field:
+              type: grid
+              display: Designs
+              mode: stacked
+              add_row: 'Add design'
+              fields:
+                -
+                  handle: name
+                  field:
+                    type: text
+                    display: Name
+                    instructions: 'What shoppers see, such as "Birthday".'
+                    validate:
+                      - required
+                -
+                  handle: title
+                  field:
+                    type: text
+                    display: 'Title on the voucher'
+                    instructions: 'Such as "Happy birthday". Leave empty for the title on the Voucher tab.'
+                    character_limit: 60
+                -
+                  handle: style
+                  field:
+                    type: button_group
+                    display: Style
+                    options:
+                      engraved: Engraved
+                      image: 'My image'
+                      plain: Plain
+                    default: engraved
+                -
+                  handle: motif
+                  field:
+                    type: select
+                    display: Motif
+                    instructions: 'Engraved at the centre of the pattern and in the corners.'
+                    options:
+                      heart: Heart
+                      star: Star
+                      flower: Flower
+                      cake: 'Birthday cake'
+                      gift: Gift
+                    clearable: true
+                    if:
+                      style: 'equals engraved'
+                -
+                  handle: image
+                  field:
+                    type: assets
+                    display: Image
+                    instructions: 'Fills the card, with the voucher''s details on a panel over the left side. Make it 2000 × 920 pixels (or the same shape), PNG or JPEG, up to 5MB.'
+                    max_files: 1
+                    mode: list
+                    if:
+                      style: 'equals image'
+                -
+                  handle: colour
+                  field:
+                    type: color
+                    display: Colour
+                    instructions: 'For the pattern, the text and the email. Leave empty for the brand colour.'
   email:
     display: Email
     sections:
