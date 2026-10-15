@@ -25,14 +25,14 @@ export default {
     },
 
     data() {
-        return { query: this.search ?? '', filter: this.status, timer: null };
+        return { query: this.search ?? '', filter: this.status ?? 'all', timer: null };
     },
 
     computed: {
         icon: () => icon,
 
         statusOptions() {
-            return [{ value: null, label: __('All statuses') }, ...this.statuses];
+            return [{ value: 'all', label: __('All statuses') }, ...this.statuses];
         },
 
         exportUrl() {
@@ -59,7 +59,7 @@ export default {
         params(page = 1) {
             const params = {};
             if (this.query) params.search = this.query;
-            if (this.filter) params.status = this.filter;
+            if (this.filter && this.filter !== 'all') params.status = this.filter;
             if (page > 1) params.page = page;
             return params;
         },

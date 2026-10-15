@@ -32,13 +32,13 @@ class Artwork
      * The background of a voucher card: frame, wave border, corner rosettes,
      * fine ground and a large rosette at ($rosetteX, $rosetteY) as fractions.
      */
-    public function card(int $width = 1000, int $height = 460, float $rosetteX = 0.83, float $rosetteY = 0.5): string
+    public function card(int $width = 1000, int $height = 460, float $rosetteX = 0.815, float $rosetteY = 0.5): string
     {
         $c = $this->colour;
         $inset = 18;
 
         $parts = [
-            $this->ground($width, $height),
+            $this->ground($width, $height, $inset),
             sprintf('<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1.6"/>', $inset, $inset, $width - $inset * 2, $height - $inset * 2, $c),
             sprintf('<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="0.6"/>', $inset + 5, $inset + 5, $width - ($inset + 5) * 2, $height - ($inset + 5) * 2, $c),
             $this->waveBorder($width, $height, $inset + 10, 14),
@@ -50,7 +50,7 @@ class Artwork
             $parts[] = $this->motif ? $this->motifAt($x, $y, 9) : $this->rosette($x, $y, 11, layers: 1, density: 0.3);
         }
 
-        $radius = min($height * 0.33, $width * 0.15);
+        $radius = min($height * 0.31, $width * 0.14);
         $parts[] = $this->rosette($width * $rosetteX, $height * $rosetteY, $radius, layers: 5);
 
         if ($this->motif) {
@@ -189,7 +189,7 @@ class Artwork
 
         return sprintf(
             '<defs>%s</defs><g fill="none" stroke="%s" stroke-width="%s">%s</g><circle cx="%s" cy="%s" r="%s" fill="none" stroke="%s" stroke-width="0.8"/>',
-            $defs, $this->colour, $this->n(max(0.3, 0.5 * $density)), $uses, $this->n($cx), $this->n($cy), $this->n($radius * 0.16), $this->colour
+            $defs, $this->colour, $this->n(max(0.3, 0.42 * $density)), $uses, $this->n($cx), $this->n($cy), $this->n($radius * 0.16), $this->colour
         );
     }
 
@@ -230,20 +230,21 @@ class Artwork
     /**
      * Very fine, faint wavy lines across the whole card.
      */
-    protected function ground(int $width, int $height): string
+    protected function ground(int $width, int $height, int $inset = 0): string
     {
         $period = 120 + $this->pick(0, 5) * 20;
         $id = 'g'.substr(hash('crc32b', $this->seed.$width.$height), 0, 6);
 
         // One wave, long enough to be shifted along, reused for every line.
         $d = '';
-        for ($x = -$period; $x <= $width + $period; $x += 8) {
-            $d .= ($x === -$period ? 'M' : 'L').$x.' '.$this->n(2.2 * sin(2 * M_PI * $x / $period));
+        // Lines run between the frame's sides, inside it.
+        for ($x = $inset; $x <= $width - $inset; $x += 8) {
+            $d .= ($x === $inset ? 'M' : 'L').$x.' '.$this->n(2.2 * sin(2 * M_PI * $x / $period));
         }
 
         $uses = '';
-        for ($y = 10; $y < $height; $y += 7) {
-            $uses .= sprintf('<use xlink:href="#%1$s" href="#%1$s" transform="translate(%2$s %3$d)"/>', $id, $this->n(-fmod($y * 5.3, $period)), $y);
+        for ($y = $inset + 6; $y < $height - $inset - 3; $y += 7) {
+            $uses .= sprintf('<use xlink:href="#%1$s" href="#%1$s" transform="translate(0 %2$d)"/>', $id, $y);
         }
 
         return sprintf('<defs><path id="%s" d="%s"/></defs><g fill="none" stroke="%s" stroke-width="0.35" stroke-opacity="0.16">%s</g>', $id, $d, $this->colour, $uses);

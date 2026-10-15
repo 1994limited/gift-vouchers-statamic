@@ -22,7 +22,7 @@
         position: relative; overflow: hidden; background: #fffdf8; color: #1f2937; text-align: left;
         font-family: 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif; line-height: 1.5;
         @if($forPdf)
-            width: 178mm; height: 81.9mm;
+            width: 174mm; height: 80mm;
         @else
             width: 100%; aspect-ratio: 1000 / 460; container-type: inline-size;
             box-shadow: 0 24px 48px -28px rgba(31, 41, 55, .55), 0 2px 6px rgba(31, 41, 55, .08);
@@ -34,7 +34,7 @@
     .gv-plain .gv-art, .gv-plain .gv-panel { display: none; }
     .gv-panel { display: none; position: absolute; top: 8%; left: 4.5%; width: 58%; height: 84%; background: #fffdf8; opacity: .93; }
     .gv-image .gv-panel { display: block; }
-    .gv-mark { display: none; position: absolute; top: 26%; left: 72%; width: 22%; height: 48%; border: 1px solid {{ $c }}; border-radius: 50%; }
+    .gv-mark { display: none; position: absolute; top: 26%; left: 70.5%; width: 22%; height: 48%; border: 1px solid {{ $c }}; border-radius: 50%; }
     .gv-plain .gv-mark { display: block; }
     .gv-image .gv-serial { display: none; }
     .gv-v { position: absolute; color: {{ $c }}; margin: 0; }
@@ -53,7 +53,7 @@
     .gv-code small { display: block; font-family: 'DejaVu Sans', Arial, sans-serif; font-weight: normal; font-size: {{ $u(.95, 5) }}; letter-spacing: .24em; text-transform: uppercase; color: #6b7280; margin-bottom: {{ $forPdf ? '.6mm' : '.3cqw' }}; }
     .gv-expires { bottom: 13%; left: 47%; font-size: {{ $u(1.25, 6.5) }}; color: #4b5563; line-height: 1.35; }
     .gv-expires span { display: block; letter-spacing: .24em; text-transform: uppercase; font-size: {{ $u(.95, 5) }}; color: #6b7280; }
-    .gv-serial { top: 85.5%; left: 73%; width: 20%; text-align: center; font-size: {{ $u(.95, 5) }}; letter-spacing: .3em; text-transform: uppercase; }
+    .gv-serial { top: 85.5%; left: 71.5%; width: 20%; text-align: center; font-size: {{ $u(.95, 5) }}; letter-spacing: .3em; text-transform: uppercase; }
 
     @unless($forPdf)
         /* Too narrow for the card's layout (a phone): a simple bordered block. */

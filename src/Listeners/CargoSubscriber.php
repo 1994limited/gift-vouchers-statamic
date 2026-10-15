@@ -152,18 +152,50 @@ class CargoSubscriber
     }
 
     /**
-     * Show the vouchers used on an order, and those bought on it, in the
-     * order's Payment tab.
+     * Show the vouchers used on an order, and those bought on it, in their
+     * own section straight after the order's receipt (Cargo's receipt can't
+     * list them, and its grand total already has them taken off).
      */
     public function orderBlueprint(OrderBlueprintFound $event): void
     {
-        $event->blueprint->ensureFieldInTab(self::ORDER_FIELD, [
-            'type' => 'gift_voucher_order',
+        $blueprint = $event->blueprint;
+
+        if ($blueprint->hasField(self::ORDER_FIELD)) {
+            return;
+        }
+
+        $field = [
+            'handle' => self::ORDER_FIELD,
+            'field' => [
+                'type' => 'gift_voucher_order',
+                'display' => __('gift-vouchers::messages.cp.gift_vouchers'),
+                'hide_display' => true,
+                'listable' => false,
+                'filterable' => false,
+                'sortable' => false,
+            ],
+        ];
+
+        $contents = $blueprint->contents();
+        $sections = $contents['tabs']['details']['sections'] ?? null;
+
+        if (! is_array($sections)) {
+            $blueprint->ensureFieldInTab(self::ORDER_FIELD, $field['field'], 'payment');
+
+            return;
+        }
+
+        // After the section holding Cargo's receipt, or at the end.
+        $receipt = collect($sections)->search(fn ($section) => collect($section['fields'] ?? [])->contains(fn ($f) => ($f['handle'] ?? null) === 'receipt'));
+        $position = $receipt === false ? count($sections) : $receipt + 1;
+
+        array_splice($sections, $position, 0, [[
             'display' => __('gift-vouchers::messages.cp.gift_vouchers'),
-            'listable' => false,
-            'filterable' => false,
-            'sortable' => false,
-        ], 'payment');
+            'fields' => [$field],
+        ]]);
+
+        $contents['tabs']['details']['sections'] = $sections;
+        $blueprint->setContents($contents);
     }
 
     /**

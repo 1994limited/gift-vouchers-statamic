@@ -16,9 +16,15 @@
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title }} · {{ $siteName }}</title>
     <style>
-        @page { margin: 16mm; }
         * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; }
+        @if($forPdf)
+            {{-- Dompdf takes the page's margins from <html>. --}}
+            @page { margin: 18mm 18mm; }
+            html { margin: 18mm 18mm; }
+            body { margin: 0; padding: 0; }
+        @else
+            html, body { margin: 0; padding: 0; }
+        @endif
         body {
             font-family: 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif;
             color: #1f2937;
