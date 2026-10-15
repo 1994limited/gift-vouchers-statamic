@@ -1,0 +1,24 @@
+{{#
+    The gift vouchers bought on an order, for Cargo's order confirmation
+    page: who they're for and when they'll be sent. Codes aren't shown:
+    they go to the recipient by email. (What was paid by voucher goes in the
+    order summary: cargo-order-summary.)
+
+    In resources/views/checkout/confirmation.antlers.html, inside the order:
+
+        {{ partial:gift-vouchers::cargo-confirmation :order="id" }}
+#}}
+{{ if {gift_vouchers:issued :order="order"} }}
+    <div class="text-sm">
+        <h3 class="font-semibold mb-2">{{ 'Your gift vouchers' | trans }}</h3>
+        <ul class="flex flex-col space-y-1">
+            {{ gift_vouchers:issued :order="order" }}
+                <li>
+                    {{ amount_formatted }}
+                    {{ if recipient_name || recipient_email }}{{ 'for' | trans }} {{ recipient_name ?? recipient_email }}{{ /if }}
+                    · <span class="text-gray-500">{{ if is_scheduled }}{{ 'will be emailed on' | trans }} {{ send_on_formatted }}{{ elseif is_sent }}{{ 'emailed' | trans }}{{ else }}{{ 'on its way' | trans }}{{ /if }}</span>
+                </li>
+            {{ /gift_vouchers:issued }}
+        </ul>
+    </div>
+{{ /if }}

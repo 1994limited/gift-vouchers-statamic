@@ -202,17 +202,50 @@ class ActionsController
         return $this->back($request, '_redirect')->with('gift_vouchers_check', $result);
     }
 
+    /**
+     * The vouchers on the current cart, for scripts (Cargo's prebuilt
+     * checkout, say). Read only.
+     */
+    public function cart(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'cart' => Cart::hasCurrentCart() ? $this->cartJson(Cart::current()) : null,
+        ])->header('Cache-Control', 'no-store, private');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function cartJson(CartContract $cart): array
+    {
+        $currency = Money::currency($cart->site());
+
+        return [
+            'grand_total' => $cart->grandTotal(),
+            'grand_total_formatted' => Money::format($cart->grandTotal(), $currency),
+            'gift_voucher_total' => (int) $cart->get(CartVouchers::TOTAL, 0),
+            'gift_voucher_total_formatted' => Money::format((int) $cart->get(CartVouchers::TOTAL, 0), $currency),
+            'gift_vouchers' => collect((array) $cart->get(CartVouchers::BREAKDOWN, []))
+                ->filter(fn ($line) => is_array($line) && isset($line['id']))
+                ->map(fn (array $line) => [
+                    'id' => (string) $line['id'],
+                    'code' => '•••• '.($line['code'] ?? ''),
+                    'amount' => (int) ($line['amount'] ?? 0),
+                    'amount_formatted' => Money::format((int) ($line['amount'] ?? 0), $currency),
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
     protected function done(Request $request, string $message, CartContract $cart): JsonResponse|RedirectResponse
     {
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'cart' => [
-                    'grand_total' => $cart->grandTotal(),
-                    'gift_voucher_total' => (int) $cart->get(CartVouchers::TOTAL, 0),
-                    'gift_vouchers' => (array) $cart->get(CartVouchers::BREAKDOWN, []),
-                ],
+                'cart' => $this->cartJson($cart),
             ]);
         }
 

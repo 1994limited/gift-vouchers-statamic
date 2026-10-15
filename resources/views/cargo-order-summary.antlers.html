@@ -1,0 +1,17 @@
+{{#
+    The gift vouchers an order was paid with, as lines in Cargo's prebuilt
+    order summary (the confirmation page). In
+    resources/views/checkout/components/_order_summary.antlers.html, after the
+    discounts:
+
+        {{ partial:gift-vouchers::cargo-order-summary :order="id" }}
+#}}
+{{ gift_vouchers:applied :order="order" }}
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-1">
+            <span>{{ 'Gift voucher' | trans }}</span>
+            <span class="text-xs text-gray-500">({{ code }})</span>
+        </div>
+        <span>-{{ amount_formatted }}</span>
+    </div>
+{{ /gift_vouchers:applied }}

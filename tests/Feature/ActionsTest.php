@@ -4,6 +4,7 @@ namespace NineteenNinetyFour\GiftVouchers\Tests\Feature;
 
 use DuncanMcClean\Cargo\Facades\Cart;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use NineteenNinetyFour\GiftVouchers\Cargo\CartVouchers;
 use NineteenNinetyFour\GiftVouchers\Cargo\Products;
 use NineteenNinetyFour\GiftVouchers\Codes;
@@ -307,5 +308,48 @@ class ActionsTest extends TestCase
         $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'voucher-25', '_redirect' => '//evil.example/'])->assertRedirect('/shop');
         $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'voucher-25', '_redirect' => '/\\evil.example/'])->assertRedirect('/shop');
         $this->from('/shop')->post('/!/gift-vouchers/cart/add', ['product' => 'nope', '_error_redirect' => '/oops'])->assertRedirect('/oops');
+    }
+
+    #[Test]
+    public function the_vouchers_on_the_cart_are_given_to_scripts(): void
+    {
+        $this->getJson('/!/gift-vouchers/cart')->assertOk()->assertExactJson(['success' => true, 'cart' => null]);
+
+        $this->product(3000);
+        $voucher = $this->voucher(1000);
+        $cart = $this->cart([['product' => 'book']]);
+        app(CartVouchers::class)->add($cart, $voucher->code());
+
+        $this->getJson('/!/gift-vouchers/cart')
+            ->assertOk()
+            ->assertHeader('Cache-Control', 'no-store, private')
+            ->assertJsonPath('cart.grand_total', 2000)
+            ->assertJsonPath('cart.grand_total_formatted', '£20.00')
+            ->assertJsonPath('cart.gift_vouchers.0.code', '•••• '.$voucher->code_hint)
+            ->assertJsonPath('cart.gift_vouchers.0.amount_formatted', '£10.00');
+    }
+
+    #[Test]
+    public function the_cargo_checkout_partials_render(): void
+    {
+        $this->product(3000);
+        $voucher = $this->voucher(1000);
+        $cart = $this->cart([['product' => 'book']]);
+        app(CartVouchers::class)->add($cart, $voucher->code());
+
+        $form = $this->antlers('{{ partial:gift-vouchers::cargo-checkout }}');
+        $this->assertStringContainsString('/!/gift-vouchers/cart/redeem', $form);
+        $this->assertStringContainsString('@submit.prevent="redeem"', $form);
+        $this->assertStringNotContainsString('<script', $form);
+
+        $lines = $this->antlers('{{ partial:gift-vouchers::cargo-checkout-lines }}');
+        $this->assertStringContainsString('data-vouchers-url="http://localhost/!/gift-vouchers/cart"', $lines);
+        $this->assertStringNotContainsString('<script', $lines);
+
+        Mail::fake();
+        $order = $this->checkout($cart);
+        $summary = $this->antlers('{{ partial:gift-vouchers::cargo-order-summary :order="id" }}', ['id' => $order->id()]);
+        $this->assertStringContainsString('•••• '.$voucher->code_hint, $summary);
+        $this->assertStringContainsString('-£10.00', $summary);
     }
 }

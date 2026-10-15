@@ -6,6 +6,9 @@ use NineteenNinetyFour\GiftVouchers\Http\Controllers\VoucherDocumentController;
 
 // At /!/gift-vouchers/...
 
+// The vouchers on the visitor's cart, for scripts.
+Route::get('cart', [ActionsController::class, 'cart'])->name('cart');
+
 // Adding vouchers to the cart, and taking them out.
 Route::middleware('throttle:gift-vouchers-cart')->group(function () {
     Route::post('cart/add', [ActionsController::class, 'add'])->name('cart.add');

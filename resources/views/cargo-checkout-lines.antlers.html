@@ -1,0 +1,50 @@
+{{#
+    The gift vouchers used on the cart, as lines in Cargo's prebuilt
+    checkout summary, each with a button to take it off. Put it with the
+    totals in resources/views/checkout/components/_cart_summary.antlers.html,
+    before Taxes and Total:
+
+        {{ partial:gift-vouchers::cargo-checkout-lines }}
+
+    It follows the checkout's cart: when the total changes (a voucher used,
+    shipping chosen), it fetches the vouchers again.
+#}}
+<div
+    class="flex flex-col space-y-6"
+    x-show="vouchers.length"
+    data-vouchers-url="{{ route:statamic.gift-vouchers.cart }}"
+    data-remove-url="{{ route:statamic.gift-vouchers.cart.remove }}"
+    data-cargo-cart-url="{{ route:statamic.cargo.cart.index }}"
+    data-csrf="{{ csrf_token }}"
+    x-data="{
+        vouchers: [],
+        async init() {
+            await this.refresh();
+            this.$watch('cart.grand_total', () => this.refresh());
+        },
+        async refresh() {
+            const response = await fetch($root.dataset.vouchersUrl, { headers: { Accept: 'application/json' } });
+            this.vouchers = (await response.json()).cart?.gift_vouchers ?? [];
+        },
+        async remove(id) {
+            const body = new FormData();
+            body.append('voucher', id);
+            await fetch($root.dataset.removeUrl, { method: 'POST', body, headers: { Accept: 'application/json', 'X-CSRF-TOKEN': $root.dataset.csrf } });
+            const cart = await fetch($root.dataset.cargoCartUrl, { headers: { Accept: 'application/json' } });
+            this.cart = (await cart.json()).data;
+        },
+    }"
+>
+    <template x-for="voucher in vouchers" :key="voucher.id">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-1">
+                <span>{{ 'Gift voucher' | trans }}</span>
+                <span class="text-xs text-gray-500" x-text="`(${voucher.code})`"></span>
+                <button type="button" @click="remove(voucher.id)" class="text-xs text-gray-500 hover:text-black focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1 rounded" :aria-label="`{{ 'Remove gift voucher' | trans | entities }} ${voucher.code}`" title="{{ 'Remove gift voucher' | trans | entities }}">
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <span x-text="`-${voucher.amount_formatted}`"></span>
+        </div>
+    </template>
+</div>
