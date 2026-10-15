@@ -1,0 +1,72 @@
+tabs:
+  voucher:
+    display: Voucher
+    sections:
+      -
+        display: 'The voucher'
+        instructions: 'How vouchers look on the printable page and the PDF. Placeholders: :amount, :recipient_name, :sender_name, :expires and :site.'
+        fields:
+          -
+            handle: logo
+            field:
+              type: assets
+              display: Logo
+              instructions: 'Shown at the top of vouchers and their emails. A PNG or JPEG works everywhere.'
+              max_files: 1
+              mode: list
+          -
+            handle: accent_colour
+            field:
+              type: color
+              display: 'Brand colour'
+              instructions: 'The band across the top of the voucher and the email''s button. Text on it turns dark or white, whichever reads better.'
+              default: '#1f2937'
+              swatches:
+                - '#1f2937'
+                - '#7f1d1d'
+                - '#14532d'
+                - '#1e3a8a'
+                - '#581c87'
+          -
+            handle: voucher_title
+            field:
+              type: text
+              display: Title
+              placeholder: 'Gift voucher'
+          -
+            handle: how_to_redeem
+            field:
+              type: textarea
+              display: 'How to spend it'
+              placeholder: 'To spend it, enter the code at checkout on :site. Anything you don’t spend stays on the voucher for next time.'
+          -
+            handle: terms
+            field:
+              type: textarea
+              display: 'Terms'
+              instructions: 'Small print shown at the bottom of vouchers and emails. Leave empty for none.'
+  email:
+    display: Email
+    sections:
+      -
+        display: 'The voucher email'
+        instructions: 'Sent to the recipient when the order is paid (or on the day the customer chose), with the PDF attached. Placeholders: :amount, :recipient_name, :sender_name, :expires and :site.'
+        fields:
+          -
+            handle: email_subject
+            field:
+              type: text
+              display: Subject
+              placeholder: 'You’ve been sent a :amount gift voucher'
+          -
+            handle: email_heading
+            field:
+              type: text
+              display: Heading
+              placeholder: 'A gift for you'
+          -
+            handle: email_intro
+            field:
+              type: textarea
+              display: Introduction
+              placeholder: ':sender_name has sent you a :amount gift voucher to spend at :site.'

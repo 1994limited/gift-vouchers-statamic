@@ -1,0 +1,66 @@
+{
+    "name": "1994/gift-vouchers-statamic",
+    "description": "Gift vouchers for Cargo: sell vouchers with fixed or chosen amounts, email them with a printable PDF, and let customers spend them at checkout with the balance carried over.",
+    "type": "statamic-addon",
+    "license": "proprietary",
+    "keywords": [
+        "statamic",
+        "statamic-addon",
+        "cargo",
+        "gift voucher",
+        "gift card",
+        "e-commerce"
+    ],
+    "authors": [
+        {
+            "name": "1994",
+            "email": "hello@1994.co.uk",
+            "homepage": "https://1994.co.uk"
+        }
+    ],
+    "support": {
+        "email": "hello@1994.co.uk"
+    },
+    "autoload": {
+        "psr-4": {
+            "NineteenNinetyFour\\GiftVouchers\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NineteenNinetyFour\\GiftVouchers\\Tests\\": "tests"
+        }
+    },
+    "require": {
+        "php": "^8.3",
+        "dompdf/dompdf": "^3.1",
+        "duncanmcclean/statamic-cargo": "^1.15",
+        "statamic/cms": "^6.35.1"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.20",
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^12.0"
+    },
+    "extra": {
+        "statamic": {
+            "name": "Gift Vouchers",
+            "description": "Sell gift vouchers with Cargo. Fixed or chosen amounts, emailed with a printable PDF, spent at checkout with the balance carried over.",
+            "developer": "1994",
+            "developer-url": "https://1994.co.uk"
+        },
+        "laravel": {
+            "providers": [
+                "NineteenNinetyFour\\GiftVouchers\\ServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

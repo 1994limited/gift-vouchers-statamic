@@ -1,0 +1,111 @@
+title: 'Gift voucher'
+tabs:
+  main:
+    display: Main
+    sections:
+      -
+        display: Voucher
+        fields:
+          -
+            handle: title
+            field:
+              type: text
+              display: Title
+              required: true
+              validate:
+                - required
+          -
+            handle: voucher_amount_type
+            field:
+              type: button_group
+              display: Amount
+              instructions: 'Sell the voucher for a set amount, or let the shopper choose how much to put on it.'
+              options:
+                fixed: 'Set amount'
+                open: 'Shopper chooses'
+              default: fixed
+          -
+            handle: price
+            field:
+              type: money
+              display: 'Voucher amount'
+              instructions: 'What the voucher costs, and what it''s worth.'
+              width: 50
+              validate:
+                - 'required_if:voucher_amount_type,fixed'
+              if:
+                voucher_amount_type: 'equals fixed'
+          -
+            handle: voucher_min
+            field:
+              type: money
+              display: 'Lowest amount'
+              instructions: 'Leave empty for the default in config/gift-vouchers.php.'
+              width: 50
+              if:
+                voucher_amount_type: 'equals open'
+          -
+            handle: voucher_max
+            field:
+              type: money
+              display: 'Highest amount'
+              instructions: 'Leave empty for the default in config/gift-vouchers.php.'
+              width: 50
+              if:
+                voucher_amount_type: 'equals open'
+          -
+            handle: voucher_suggested_amounts
+            field:
+              type: list
+              display: 'Suggested amounts'
+              instructions: 'Quick choices to show next to the amount box, such as 25, 50 and 100.'
+              if:
+                voucher_amount_type: 'equals open'
+          -
+            handle: description
+            field:
+              type: markdown
+              display: Description
+  sidebar:
+    display: Sidebar
+    sections:
+      -
+        fields:
+          -
+            handle: slug
+            field:
+              type: slug
+              localizable: true
+              validate: 'max:200'
+          -
+            handle: voucher_expiry_months
+            field:
+              type: integer
+              display: 'Expires after (months)'
+              instructions: 'Leave empty for the default in config/gift-vouchers.php, or for no expiry date.'
+          -
+            handle: tax_class
+            field:
+              type: tax_classes
+              display: 'Tax class'
+              instructions: 'Gift vouchers are usually outside the scope of VAT when sold: they''re taxed when they''re spent.'
+              max_items: 1
+              mode: select
+              default: gift_vouchers
+              validate:
+                - required
+          # Vouchers are never shipped and have nothing to download. These
+          # keep Cargo from adding its product type and download fields.
+          -
+            handle: type
+            field:
+              type: hidden
+              default: digital
+          -
+            handle: downloads
+            field:
+              type: hidden
+          -
+            handle: download_limit
+            field:
+              type: hidden
