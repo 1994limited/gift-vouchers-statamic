@@ -63,6 +63,7 @@ class Presenter
             'headerImage' => $forEmail && $design->kind() === Design::IMAGE ? $design->image->absoluteUrl() : null,
             'emblemPng' => $forEmail ? $design->emblemPng() : null,
             'designTitle' => $design->title,
+            'voucherTitle' => Settings::text('voucher_title', $replace),
             'colour' => $design->colour,
             'onColour' => $design->onColour(),
             'logo' => $forEmail ? $logo?->absoluteUrl() : Settings::logoDataUri(),

@@ -12,13 +12,13 @@
     $id = $preview ? 'gv-preview' : 'gv-card';
     // Font sizes: points in the PDF, a share of the card's width (cqw) on screen.
     $u = fn (float $cqw, float $pt) => $forPdf ? $pt.'pt' : $cqw.'cqw';
-    // The design's colour: a CSS variable on screen (so a preview can change
-    // design), the colour itself in the PDF.
+    // The design's colour: a CSS variable on screen, set on the card itself
+    // (so cards in different designs can share a page, and a preview can
+    // change design), the colour itself in the PDF.
     $c = $forPdf ? $colour : 'var(--gv-colour)';
 @endphp
 <style>
     .gv-card {
-        --gv-colour: {{ $colour }};
         position: relative; overflow: hidden; background: #fffdf8; color: #1f2937; text-align: left;
         font-family: 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif; line-height: 1.5;
         @if($forPdf)
@@ -77,6 +77,7 @@
 
 <section
     class="gv-card gv-{{ $artworkKind ?? 'plain' }}"
+    style="--gv-colour: {{ $colour }}"
     id="{{ $id }}"
     @if($preview) data-gift-vouchers-preview aria-hidden="true" @else aria-label="{{ $title }}" @endif
 >

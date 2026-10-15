@@ -43,7 +43,7 @@
                             <p style="margin:0 0 24px; padding:4px 0 4px 14px; border-left:3px solid {{ $colour }}; font-size:16px; line-height:1.5; font-style:italic; color:#374151;">{!! nl2br(e($giftMessage)) !!}</p>
                         @endif
 
-                        <p style="margin:0 0 4px; font-size:13px; color:#6b7280;">{{ $title }}</p>
+                        <p style="margin:0 0 4px; font-size:13px; color:#6b7280;">{{ $voucherTitle }}</p>
                         <p style="margin:0 0 20px; font-size:34px; font-weight:bold; line-height:1.1; color:#111827;">{{ $amount }}</p>
 
                         <p style="margin:0 0 6px; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:#6b7280;">{{ __('gift-vouchers::messages.document.code') }}</p>
