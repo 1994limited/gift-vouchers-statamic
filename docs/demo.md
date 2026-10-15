@@ -23,6 +23,7 @@ cd gift-vouchers-statamic-demo
 composer install
 cp .env.example .env
 php artisan key:generate
+touch database/database.sqlite
 php artisan migrate
 php artisan demo:users
 php artisan demo:seed
