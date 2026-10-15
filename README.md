@@ -2,7 +2,7 @@
 
 Sell gift vouchers with [Cargo](https://builtwithcargo.dev). Shoppers choose an amount, a design and who it's for. The recipient is emailed an engraved voucher with a printable PDF, and spends it at checkout, all at once or over several orders.
 
-![An engraved Paper & Ink gift voucher](docs/images/cover.png)
+![Gift Vouchers for Statamic and Cargo: choose it, send it, spend it](docs/marketplace/cover-1600x900.png)
 
 ## Features
 
