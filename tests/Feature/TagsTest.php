@@ -177,4 +177,23 @@ class TagsTest extends TestCase
         $this->assertSame('yes', $this->antlers('{{ if {gift_vouchers:is_voucher product="voucher-25"} }}yes{{ else }}no{{ /if }}'));
         $this->assertSame('no', $this->antlers('{{ if {gift_vouchers:is_voucher product="book"} }}yes{{ else }}no{{ /if }}'));
     }
+
+    #[Test]
+    public function the_tags_work_in_blade_too(): void
+    {
+        $this->fixedVoucher(2500);
+        $this->product(3000);
+        $voucher = $this->voucher(1000);
+        $cart = $this->cart([['product' => 'book']]);
+        app(CartVouchers::class)->add($cart, $voucher->code());
+        view()->addLocation(__DIR__.'/../__fixtures__/views');
+
+        $html = view('blade-tags')->render();
+
+        $this->assertStringContainsString('/!/gift-vouchers/cart/add', $html);
+        $this->assertStringContainsString('Pay £25.00', $html);
+        $this->assertStringContainsString('/!/gift-vouchers/cart/redeem', $html);
+        $this->assertStringContainsString('•••• '.$voucher->code_hint.'=£10.00', $html);
+        $this->assertStringContainsString('Total £10.00', $html);
+    }
 }

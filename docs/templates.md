@@ -6,6 +6,27 @@ The examples are from [the demo shop](demo.md), trimmed down.
 
 > **Escaping.** The `{{ gift_vouchers:* }}` tags escape everything shoppers typed. Values you read through Cargo's own tags (`{{ cart:line_items }}`'s `voucher_recipient_name`, say) aren't escaped: add `| sanitize`.
 
+## Antlers or Blade
+
+The examples are Antlers, but every tag works in Blade too, with Statamic's tag syntax:
+
+```blade
+<s:gift_vouchers:form product="voucher-25" redirect="/basket">
+    <input type="text" name="recipient_name" value="{{ $old['recipient_name'] ?? '' }}">
+    <button type="submit">Add to basket for {{ $price }}</button>
+</s:gift_vouchers:form>
+
+<s:gift_vouchers:applied>
+    Gift voucher {{ $code }} −{{ $amount_formatted }}
+</s:gift_vouchers:applied>
+
+{!! Statamic::tag('gift_vouchers:preview')->param('product', $id)->fetch() !!}
+```
+
+Inside a tag pair, the tag's variables are Blade variables (`$price`, `$errors['amount']`…). Values from the tags are already escaped, so `{{ }}` is right for text; use `{!! !!}` only for tags that return HTML, such as `preview` and `artwork`.
+
+The voucher itself (the printable page, PDF and emails) is drawn with Blade views, which you can publish or swap for Antlers templates: see [Designs](designs.md). The partials for [Cargo's prebuilt checkout](prebuilt-checkout.md) are Antlers, as that checkout is.
+
 ## The voucher form
 
 On the voucher product's page (the entry is in context, or pass `product="…"`):

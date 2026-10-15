@@ -27,7 +27,7 @@ It does three things:
 
 1. Adds a **Gift voucher** blueprint to your products collection (`resources/blueprints/collections/products/gift_voucher.yaml`). Pass `--collection=` to choose another of Cargo's product collections.
 2. Adds a **Gift vouchers** tax class with no rates. Gift vouchers are usually outside the scope of VAT when they're sold, and taxed when they're spent. Check with your accountant.
-3. Runs the migrations, making the `gift_vouchers` and `gift_voucher_transactions` tables. Pass `--no-migrate` to run them yourself.
+3. Runs `php artisan migrate`, making the `gift_vouchers` and `gift_voucher_transactions` tables (and running any other migrations your site has waiting). Pass `--no-migrate` to run them yourself.
 
 **Store → Gift Vouchers** appears in the Control Panel. Next:
 
