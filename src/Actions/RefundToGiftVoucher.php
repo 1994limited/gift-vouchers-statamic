@@ -112,9 +112,8 @@ class RefundToGiftVoucher extends Action
             throw new \Exception($e->getMessage());
         }
 
-        return __('gift-vouchers::messages.cp.refunded', [
+        return trans_choice('gift-vouchers::messages.cp.refunded', $transactions->count(), [
             'amount' => Money::format($transactions->sum('amount'), Money::currency($order->site())),
-            'count' => $transactions->count(),
         ]);
     }
 

@@ -110,6 +110,18 @@ return [
     'cp' => [
         'gift_vouchers' => 'Gift Vouchers',
         'gift_voucher' => 'Gift Voucher',
+        'refund_action' => 'Refund to gift voucher',
+        'refund_instructions' => 'Put this much back on the gift vouchers used on this order, the last one spent first. Refund any card payment with Refund.',
+        'refunded' => '{1} :amount refunded to 1 gift voucher.|[2,*] :amount refunded to :count gift vouchers.',
+        'note' => 'Note',
+        'email_needed' => 'Enter the recipient’s email address to send the voucher.',
+        'created' => 'Voucher created.',
+        'saved' => 'Saved.',
+        'adjusted' => 'Balance changed. It’s now :balance.',
+        'disabled' => 'Voucher disabled. It can’t be spent until it’s enabled again.',
+        'enabled' => 'Voucher enabled.',
+        'sent' => 'Voucher emailed to :email.',
+        'deleted_user' => 'Deleted user',
     ],
 
 ];

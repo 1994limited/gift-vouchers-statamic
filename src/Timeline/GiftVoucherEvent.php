@@ -17,10 +17,15 @@ class GiftVoucherEvent extends TimelineEventType
         $event = $this->timelineEvent;
         $action = (string) $event->metadata('Action');
 
-        return __('gift-vouchers::messages.timeline.'.$action, [
+        $replace = [
             'amount' => (string) $event->metadata('Amount'),
             'voucher' => (string) $event->metadata('Voucher'),
-            'count' => (int) $event->metadata('Count'),
-        ]);
+        ];
+
+        if ($event->metadata('Count') !== null) {
+            return trans_choice('gift-vouchers::messages.timeline.'.$action, (int) $event->metadata('Count'));
+        }
+
+        return __('gift-vouchers::messages.timeline.'.$action, $replace);
     }
 }
