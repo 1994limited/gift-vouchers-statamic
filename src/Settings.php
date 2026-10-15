@@ -5,6 +5,7 @@ namespace NineteenNinetyFour\GiftVouchers;
 use Statamic\Contracts\Assets\Asset;
 use Statamic\Facades\Addon;
 use Statamic\Facades\Site;
+use Statamic\Fields\Value;
 use Throwable;
 
 /**
@@ -109,6 +110,7 @@ class Settings
 
             // The settings' own field knows which asset container it uses.
             $asset = $field->setValue($value)->augment()->value();
+            $asset = $asset instanceof Value ? $asset->value() : $asset;
             $asset = is_iterable($asset) ? collect($asset)->first() : $asset;
 
             return $asset instanceof Asset ? $asset : null;

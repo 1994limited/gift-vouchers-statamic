@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 (2026-10-15)
+
+### Fixed
+- **The settings page no longer fails on sites with no asset container, or with several.** The logo and design image fields now use the site's first asset container, and are left out when there isn't one.
+- **The logo and design images now show.** They were saved in the settings but never reached vouchers, emails or PDFs.
+
 ## 1.0.0 (2026-10-15)
 
 The first release.

@@ -19,8 +19,10 @@ use NineteenNinetyFour\GiftVouchers\Fieldtypes\GiftVoucherOrder;
 use NineteenNinetyFour\GiftVouchers\Listeners\CargoSubscriber;
 use NineteenNinetyFour\GiftVouchers\Tags\GiftVoucherTags;
 use NineteenNinetyFour\GiftVouchers\Timeline\GiftVoucherEvent;
+use Statamic\Facades\AssetContainer;
 use Statamic\Facades\CP\Nav;
 use Statamic\Facades\Permission;
+use Statamic\Facades\YAML;
 use Statamic\Providers\AddonServiceProvider;
 use Statamic\Statamic;
 
@@ -110,6 +112,7 @@ class ServiceProvider extends AddonServiceProvider
 
         $this->registerFrontendRoutes();
         $this->registerSchedule();
+        $this->registerSettings();
 
         Permission::extend(function () {
             Permission::group('gift-vouchers', __('gift-vouchers::messages.cp.gift_vouchers'), function () {
@@ -129,6 +132,47 @@ class ServiceProvider extends AddonServiceProvider
                 ->icon(self::ICON)
                 ->can('view gift vouchers');
         });
+    }
+
+    /**
+     * Tools → Addons → Gift Vouchers → Settings (resources/settings.yaml).
+     * The logo and design images need an asset container: the first one,
+     * if there are several. Without one, those fields are left out.
+     */
+    protected function registerSettings(): void
+    {
+        $this->registerSettingsBlueprint(function () {
+            $blueprint = YAML::file(__DIR__.'/../resources/settings.yaml')->parse();
+            $container = AssetContainer::all()->first()?->handle();
+
+            $blueprint['tabs']['voucher']['sections'][0]['fields'] = $this->withContainer($blueprint['tabs']['voucher']['sections'][0]['fields'], $container);
+
+            foreach ($blueprint['tabs']['designs']['sections'][0]['fields'] as &$field) {
+                if ($field['handle'] === 'designs') {
+                    $field['field']['fields'] = $this->withContainer($field['field']['fields'], $container);
+                }
+            }
+
+            return $blueprint;
+        });
+    }
+
+    /**
+     * Point these fields' assets fields at the container, or drop them.
+     */
+    protected function withContainer(array $fields, ?string $container): array
+    {
+        return collect($fields)
+            ->filter(fn (array $field) => $container || ($field['field']['type'] ?? null) !== 'assets')
+            ->map(function (array $field) use ($container) {
+                if (($field['field']['type'] ?? null) === 'assets') {
+                    $field['field']['container'] = $container;
+                }
+
+                return $field;
+            })
+            ->values()
+            ->all();
     }
 
     protected function registerFrontendRoutes(): void

@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Statamic\Contracts\Assets\Asset;
 use Statamic\Facades\Addon;
+use Statamic\Fields\Value;
 use Throwable;
 
 /**
@@ -126,6 +127,7 @@ class Designs
 
         return rescue(function () use ($field, $value) {
             $asset = $field->setValue($value)->augment()->value();
+            $asset = $asset instanceof Value ? $asset->value() : $asset;
             $asset = is_iterable($asset) ? collect($asset)->first() : $asset;
 
             return $asset instanceof Asset ? $asset : null;

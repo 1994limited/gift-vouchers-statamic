@@ -3,7 +3,9 @@
 namespace NineteenNinetyFour\GiftVouchers\Tests\Feature;
 
 use DuncanMcClean\Cargo\Facades\Order;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 use NineteenNinetyFour\GiftVouchers\Cargo\CartVouchers;
 use NineteenNinetyFour\GiftVouchers\Codes;
@@ -12,13 +14,17 @@ use NineteenNinetyFour\GiftVouchers\Fieldtypes\GiftVoucherOrder;
 use NineteenNinetyFour\GiftVouchers\Ledger;
 use NineteenNinetyFour\GiftVouchers\Mail\VoucherMail;
 use NineteenNinetyFour\GiftVouchers\ServiceProvider;
+use NineteenNinetyFour\GiftVouchers\Settings;
 use NineteenNinetyFour\GiftVouchers\Tests\TestCase;
 use NineteenNinetyFour\GiftVouchers\Transaction;
 use NineteenNinetyFour\GiftVouchers\TransactionType;
 use NineteenNinetyFour\GiftVouchers\Voucher;
 use PHPUnit\Framework\Attributes\Test;
 use Statamic\Contracts\Auth\User;
+use Statamic\Facades\Addon;
+use Statamic\Facades\AssetContainer;
 use Statamic\Facades\Permission;
+use Statamic\Facades\User as UserFacade;
 use Statamic\Fields\Field;
 
 class ControlPanelTest extends TestCase
@@ -365,5 +371,50 @@ class ControlPanelTest extends TestCase
 
         $this->assertSame($design->name, $field->preProcessIndex()->value());
         $this->assertSame('gone', $field->setValue('gone')->preProcessIndex()->value());
+    }
+
+    #[Test]
+    public function the_settings_page_opens_with_any_number_of_asset_containers(): void
+    {
+        $addon = Addon::get(Settings::ADDON);
+        $admin = UserFacade::make()->email('admin@example.com')->id('admin')->makeSuper();
+        $admin->save();
+        $this->actingAs($admin);
+
+        // None: no logo or design image fields.
+        $this->get(cp_route('addons.settings.edit', $addon->slug()))->assertOk();
+        $this->assertNull($addon->settingsBlueprint()->field('logo'));
+
+        // One.
+        Storage::fake('images');
+        AssetContainer::make('images')->disk('images')->save();
+        $this->get(cp_route('addons.settings.edit', $addon->slug()))->assertOk();
+
+        // Several: the first is used.
+        Storage::fake('files');
+        AssetContainer::make('files')->disk('files')->save();
+        $this->get(cp_route('addons.settings.edit', $addon->slug()))->assertOk();
+    }
+
+    #[Test]
+    public function the_logo_and_design_images_come_from_the_first_asset_container(): void
+    {
+        Storage::fake('images');
+        Storage::fake('files');
+        AssetContainer::make('images')->disk('images')->save();
+        AssetContainer::make('files')->disk('files')->save();
+        Storage::disk('images')->put('logo.png', UploadedFile::fake()->image('logo.png')->getContent());
+        Storage::disk('images')->put('birthday.jpg', UploadedFile::fake()->image('birthday.jpg')->getContent());
+
+        Addon::get(Settings::ADDON)->settings()->set([
+            'logo' => ['logo.png'],
+            'designs' => [['id' => 'a', 'name' => 'Birthday', 'style' => 'image', 'image' => ['birthday.jpg']]],
+        ])->save();
+
+        $this->assertSame('images::logo.png', Settings::logo()?->id());
+
+        $designs = app(Designs::class);
+        $designs->forget();
+        $this->assertSame('images::birthday.jpg', $designs->all()->first()->image?->id());
     }
 }
