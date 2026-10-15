@@ -79,6 +79,7 @@ class CargoSubscriber
         }
 
         try {
+            $this->orders->ensureQuantities($order);
             $this->orders->redeem($order);
         } catch (VoucherException $e) {
             // Cargo has already saved the order. Its checkout route deletes it

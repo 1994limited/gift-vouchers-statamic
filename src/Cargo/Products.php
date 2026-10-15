@@ -43,6 +43,14 @@ class Products
         return in_array($product->blueprint()?->handle(), (array) config('gift-vouchers.blueprints', ['gift_voucher']), true);
     }
 
+    /**
+     * The most vouchers one basket line can make (gift-vouchers.max_quantity).
+     */
+    public function maxQuantity(): int
+    {
+        return max(1, (int) config('gift-vouchers.max_quantity', 20));
+    }
+
     public function isVoucherLine(LineItem $lineItem): bool
     {
         return $this->isVoucher($lineItem->product());

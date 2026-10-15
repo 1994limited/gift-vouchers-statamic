@@ -132,6 +132,13 @@ class Ledger
     public function redeemForOrder(string $orderId, array $breakdown): Collection
     {
         $done = $this->transaction(function () use ($orderId, $breakdown) {
+            // Lock the vouchers (in a fixed order, so two orders can't
+            // deadlock) before checking whether this order has been charged:
+            // a second attempt at the same moment waits here, then sees the
+            // first one's history and charges nothing.
+            $ids = collect($breakdown)->pluck('id')->filter()->map(fn ($id) => (string) $id)->unique()->sort()->values();
+            Voucher::query()->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get();
+
             if (Transaction::query()->where('order_id', $orderId)->where('type', TransactionType::Redeemed)->exists()) {
                 return collect();
             }
@@ -284,6 +291,11 @@ class Ledger
     /**
      * Write a change to the history, with the balance as it now stands, and
      * bring the model up to date.
+     *
+     * Called straight after this transaction's UPDATE of the voucher's row,
+     * which holds the row's lock until the transaction commits, so no other
+     * change can come between the update and this read: the balance read is
+     * this change's. (SQLite runs one writer at a time, to the same effect.)
      */
     protected function record(Voucher $voucher, TransactionType $type, int $amount, ?string $orderId, ?string $userId, ?string $note): Transaction
     {

@@ -6,13 +6,13 @@ Gift Vouchers follows Cargo's orders through their statuses. Everything it does 
 
 Vouchers bought on an order are made when the order is **paid** (Cargo's Payment Received status): straight away for free orders and most gateways, or when the payment is captured.
 
-- One voucher per voucher bought: a quantity of 3 makes three, each with its own code.
-- Each is worth what was paid for it, in the order's currency, and expires after the product's months (if any).
+- One voucher per voucher bought: a quantity of 3 makes three, each with its own code (up to `max_quantity`, 20, per basket line).
+- Each is worth its price, in the order's currency, and expires after the product's months (if any). If a Cargo discount applied, it's still worth its full price, unless `voucher_value` is `'paid'`: then it's worth its share of what was paid, and a voucher discounted to nothing isn't made.
 - It's emailed to its recipient, or the customer if no recipient was given, on its send date or straight away. See [Emails](emails.md).
 
 Marking an order paid again (an admin moving it back and forth) makes no more vouchers. A database index makes sure of it, even if two requests arrive together.
 
-If a voucher email can't be sent (the mail server's down), the order still goes through: the problem is logged, and you can send it again from the voucher's page.
+If a voucher email can't be sent (the mail server's down), the order still goes through: the problem is logged, and you can send it again from the voucher's page. If making an order's vouchers stops part way (a timeout), the next time the order is marked paid finishes the job and sends any that weren't sent.
 
 ## When an order fails or is cancelled
 

@@ -357,4 +357,4 @@ Only the last four characters of the code are ever shown back. Checking is rate 
 
 </details>
 
-Codes aren't shown on the confirmation page: they go to the recipient by email.
+Codes aren't shown on the confirmation page: they go to the recipient by email. The order tags only show an order on Cargo's signed confirmation page for it, to the signed-in customer who placed it, or to staff who can view orders: to anyone else, they're empty.

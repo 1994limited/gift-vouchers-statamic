@@ -30,8 +30,6 @@ class ActionsController
 {
     use ReadsText;
 
-    public const MAX_QUANTITY = 20;
-
     public function __construct(
         protected CartVouchers $carts,
         protected Products $products,
@@ -83,8 +81,8 @@ class ActionsController
 
         $quantity = $this->text($request, 'quantity', 4) ?? '1';
 
-        if (! ctype_digit($quantity) || (int) $quantity < 1 || (int) $quantity > self::MAX_QUANTITY) {
-            $errors['quantity'] = __('gift-vouchers::messages.errors.quantity', ['max' => self::MAX_QUANTITY]);
+        if (! ctype_digit($quantity) || (int) $quantity < 1 || (int) $quantity > $this->products->maxQuantity()) {
+            $errors['quantity'] = __('gift-vouchers::messages.errors.quantity', ['max' => $this->products->maxQuantity()]);
         }
 
         $input = [

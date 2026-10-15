@@ -74,7 +74,7 @@ After a check: `code` (`•••• PQRS`), `code_hint`, `balance`, `balance_fo
 
 ## gift_vouchers:issued
 
-The vouchers bought on an order (`order="…"`, or the `id` in context). It shows any order you give it, so only pass an order ID you trust, such as the one on Cargo's signed confirmation page, never one from the query string: `code` (masked), `amount`, `amount_formatted`, `recipient_name`, `recipient_email`, `send_on`, `send_on_formatted`, `is_scheduled`, `is_sent`.
+The vouchers bought on an order (`order="…"`, or the `id` in context). An order is only shown on Cargo's signed confirmation page for it, to the signed-in customer who placed it, or to someone who can view orders; to anyone else it's empty, so the tag can't be used to look up other people's orders. The same goes for `applied` and `total` with `order="…"`: `code` (masked), `amount`, `amount_formatted`, `recipient_name`, `recipient_email`, `send_on`, `send_on_formatted`, `is_scheduled`, `is_sent`.
 
 ## gift_vouchers:success
 

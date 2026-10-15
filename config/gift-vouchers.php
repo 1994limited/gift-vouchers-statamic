@@ -75,6 +75,10 @@ return [
 
     'max_per_cart' => 5,
 
+    // The most vouchers one basket line can make. Checked when vouchers are
+    // added, and again at checkout (Cargo's own basket routes don't know it).
+    'max_quantity' => 20,
+
     /*
     | What a voucher is worth if a Cargo discount applied to it:
     | 'price', its full price (the shop pays the discount), or

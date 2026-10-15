@@ -51,6 +51,13 @@ class MoneyAndDetailsTest extends TestCase
             ['10.5', 'EUR', null, 'de_DE'],
             ['25.00', 'EUR', 2500, 'de_DE'], // as the form's quick amounts write it
             ['€ 25,5', 'EUR', 2550, 'fr_FR'],
+            // Nothing but an amount and its currency: other characters aren't dropped.
+            ['1e3', 'GBP', null],
+            ['25oops50', 'GBP', null],
+            ['£25 or £50', 'GBP', null],
+            ['GBP 25', 'GBP', 2500],
+            ['25 GBP', 'GBP', 2500],
+            ['1 000,50 €', 'EUR', 100050, 'fr_FR'],
         ];
     }
 

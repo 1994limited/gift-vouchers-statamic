@@ -31,3 +31,6 @@ The first release.
 - **What shoppers type is escaped** wherever it's shown, and read as plain text only.
 - **Amounts are read for the site's locale** ("10,50" in Germany), and ones that could be read two ways are refused, never guessed.
 - **Redirects after a form** only go to this site.
+- **Order tags only show an order** on Cargo's signed confirmation page, to its signed-in customer, or to staff who can view orders.
+- **Voucher lines are limited** to `max_quantity` (20) when added and again at checkout.
+- **An order can't be charged twice** by vouchers, even if it's checked out twice at the same moment.

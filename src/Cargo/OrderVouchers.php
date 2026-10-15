@@ -32,6 +32,23 @@ class OrderVouchers
     ) {}
 
     /**
+     * Make sure no voucher line asks for more vouchers than allowed. Cargo's
+     * own basket routes don't know the limit, so it's checked at checkout.
+     *
+     * @throws VoucherException
+     */
+    public function ensureQuantities(Order $order): void
+    {
+        $max = $this->products->maxQuantity();
+
+        $tooMany = $order->lineItems()->contains(fn (LineItem $lineItem) => $this->products->isVoucherLine($lineItem) && (int) $lineItem->quantity() > $max);
+
+        if ($tooMany) {
+            throw VoucherException::because('quantity', ['max' => $max]);
+        }
+    }
+
+    /**
      * Spend the vouchers used on an order, all or nothing.
      *
      * @throws VoucherException if a voucher no longer covers its part.
@@ -121,7 +138,15 @@ class OrderVouchers
             $this->timeline($order, 'issued', null, ['Count' => $made->count()]);
         }
 
-        $made->reject(fn (Voucher $voucher) => $voucher->isScheduled())
+        // Every voucher on the order that's due and hasn't been sent, not only
+        // those made just now: if an earlier run stopped part way (a timeout,
+        // a mail error), its vouchers are sent this time.
+        Voucher::query()
+            ->where('order_id', $order->id())
+            ->whereNull('sent_at')
+            ->whereNull('disabled_at')
+            ->get()
+            ->reject(fn (Voucher $voucher) => $voucher->isScheduled())
             ->each(fn (Voucher $voucher) => $this->delivery->sendSafely($voucher));
 
         return $made;

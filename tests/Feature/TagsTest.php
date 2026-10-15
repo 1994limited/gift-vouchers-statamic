@@ -3,6 +3,7 @@
 namespace NineteenNinetyFour\GiftVouchers\Tests\Feature;
 
 use DuncanMcClean\Cargo\Facades\Cart;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
@@ -161,6 +162,7 @@ class TagsTest extends TestCase
             Products::RECIPIENT_NAME => '<b>Grace</b>',
             Products::SEND_ON => now()->addWeek()->toDateString(),
         ]]));
+        $this->onConfirmationPage($order);
 
         $html = $this->antlers('{{ gift_vouchers:issued }}{{ recipient_name }} {{ amount_formatted }} {{ if is_scheduled }}on {{ send_on }}{{ /if }} {{ code }}{{ /gift_vouchers:issued }}', ['id' => $order->id()]);
         $voucher = Voucher::sole();
@@ -192,6 +194,7 @@ class TagsTest extends TestCase
         Mail::fake();
         $order = $this->checkout($this->cart([['product' => 'voucher-25', Products::RECIPIENT_NAME => "Seán O'Brien <b>"]]));
         Cart::setCurrent(Cart::find($cart->id()));
+        $this->onConfirmationPage($order);
 
         $html = view('blade-tags', ['orderId' => $order->id()])->render();
 
@@ -202,5 +205,40 @@ class TagsTest extends TestCase
         $this->assertStringContainsString('/!/gift-vouchers/cart/redeem', $html);
         $this->assertStringContainsString('•••• '.$voucher->code_hint.'=£10.00', $html);
         $this->assertStringContainsString('Total £10.00', $html);
+    }
+
+    #[Test]
+    public function an_order_is_only_shown_to_people_who_may_see_it(): void
+    {
+        Mail::fake();
+        $this->fixedVoucher(2500);
+        $order = $this->checkout($this->cart([['product' => 'voucher-25', Products::RECIPIENT_NAME => 'Grace']]));
+        $template = '{{ gift_vouchers:issued :order="id" }}{{ recipient_name }}{{ /gift_vouchers:issued }}|{{ gift_vouchers:total :order="id" }}';
+
+        // Anyone else, including with a forged confirmation link.
+        $this->assertSame('|£0.00', $this->antlers($template, ['id' => $order->id()]));
+        $this->app->instance('request', Request::create('/checkout/confirmation?order_id='.$order->id().'&signature=forged'));
+        $this->assertSame('|£0.00', $this->antlers($template, ['id' => $order->id()]));
+        $this->actingAs($this->user('stranger@example.com'));
+        $this->assertSame('|£0.00', $this->antlers($template, ['id' => $order->id()]));
+
+        // Staff who can view orders.
+        $this->actingAs($this->user('staff@example.com', ['view orders']));
+        $this->assertStringStartsWith('Grace|', $this->antlers($template, ['id' => $order->id()]));
+    }
+
+    #[Test]
+    public function a_signed_in_customer_sees_their_own_order(): void
+    {
+        Mail::fake();
+        $this->fixedVoucher(2500);
+        $customer = $this->user('ada@example.com');
+        $cart = $this->cart([['product' => 'voucher-25', Products::RECIPIENT_NAME => 'Grace']]);
+        $cart->customer($customer)->save();
+        $order = $this->checkout($cart);
+
+        $this->actingAs($customer);
+
+        $this->assertSame('Grace', $this->antlers('{{ gift_vouchers:issued :order="id" }}{{ recipient_name }}{{ /gift_vouchers:issued }}', ['id' => $order->id()]));
     }
 }

@@ -354,6 +354,7 @@ class ActionsTest extends TestCase
 
         Mail::fake();
         $order = $this->checkout($cart);
+        $this->onConfirmationPage($order);
         $summary = $this->antlers('{{ partial:gift-vouchers::cargo-order-summary :order="id" }}', ['id' => $order->id()]);
         $this->assertStringContainsString('•••• '.$voucher->code_hint, $summary);
         $this->assertStringContainsString('-£10.00', $summary);

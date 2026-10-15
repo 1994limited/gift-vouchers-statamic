@@ -19,6 +19,7 @@ use NineteenNinetyFour\GiftVouchers\Money;
 use NineteenNinetyFour\GiftVouchers\Settings;
 use NineteenNinetyFour\GiftVouchers\Voucher;
 use Statamic\Facades\Site;
+use Statamic\Facades\User;
 use Statamic\Tags\Concerns\RendersForms;
 use Statamic\Tags\Tags;
 
@@ -320,7 +321,7 @@ class GiftVoucherTags extends Tags
      */
     public function issued(): array|string
     {
-        $order = ($id = $this->params->get('order', $this->context->get('id'))) ? Order::find((string) $id) : null;
+        $order = $this->order($this->params->get('order', $this->context->get('id')));
         $vouchers = $order ? app(OrderVouchers::class)->issuedFor($order) : collect();
 
         if ($vouchers->isEmpty()) {
@@ -411,11 +412,42 @@ class GiftVoucherTags extends Tags
      */
     protected function target(): CartContract|\DuncanMcClean\Cargo\Contracts\Orders\Order|null
     {
-        if ($order = $this->params->get('order')) {
-            return Order::find((string) $order);
+        if ($this->params->has('order')) {
+            return $this->order($this->params->get('order'));
         }
 
         return Cart::hasCurrentCart() ? Cart::current() : null;
+    }
+
+    /**
+     * An order the visitor may see: on Cargo's signed confirmation page for
+     * that order, as the signed-in customer who placed it, or as someone who
+     * can view orders in the Control Panel. Anything else is nothing, so a
+     * template can't be used to look up other people's orders.
+     */
+    protected function order(mixed $id): ?\DuncanMcClean\Cargo\Contracts\Orders\Order
+    {
+        $id = is_object($id) && method_exists($id, 'value') ? $id->value() : $id;
+        $order = is_string($id) && $id !== '' ? Order::find($id) : null;
+
+        if (! $order) {
+            return null;
+        }
+
+        $request = request();
+
+        if ($request->query('order_id') === $order->id() && $request->hasValidSignature()) {
+            return $order;
+        }
+
+        $user = User::current();
+        $customer = $order->customer();
+
+        if ($user && ($user->can('view orders') || ($customer instanceof \Statamic\Contracts\Auth\User && $customer->id() === $user->id()))) {
+            return $order;
+        }
+
+        return null;
     }
 
     /**

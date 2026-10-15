@@ -471,6 +471,42 @@ class CheckoutTest extends TestCase
     }
 
     #[Test]
+    public function vouchers_left_unsent_by_an_interrupted_run_are_sent_next_time(): void
+    {
+        Mail::fake();
+        $this->fixedVoucher(2500);
+        $order = $this->checkout($this->cart([['product' => 'voucher-25', 'quantity' => 2]]));
+
+        // As if the first run stopped after making the vouchers, before sending.
+        Voucher::query()->update(['sent_at' => null]);
+
+        $order->status(OrderStatus::Shipped)->save();
+        $order->status(OrderStatus::PaymentReceived)->save();
+
+        $this->assertSame(0, Voucher::whereNull('sent_at')->count());
+        $this->assertSame(2, Voucher::count());
+    }
+
+    #[Test]
+    public function checkout_stops_if_a_voucher_line_asks_for_too_many(): void
+    {
+        $this->fixedVoucher(2500);
+
+        // Added with Cargo's own routes, which don't know the limit.
+        $cart = $this->cart([['product' => 'voucher-25', 'quantity' => 21]]);
+
+        try {
+            $this->checkout($cart);
+            $this->fail('Checkout went through.');
+        } catch (PreventCheckout $e) {
+            $this->assertStringContainsString('1 to 20', $e->getMessage());
+        }
+
+        $this->assertSame(0, Order::query()->count());
+        $this->assertSame(0, Voucher::count());
+    }
+
+    #[Test]
     public function the_checkout_route_cancels_the_order_and_puts_nothing_back_twice(): void
     {
         $this->product(3000);

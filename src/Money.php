@@ -63,8 +63,14 @@ class Money
             return null;
         }
 
-        // Currency symbols, letters and spaces out; digits and separators stay.
-        $value = (string) preg_replace('/[^\d.,\-]/u', '', trim($input));
+        $value = self::withoutCurrency(trim($input), $currency, $locale);
+
+        // Only digits and separators are left in an amount. Anything else
+        // ("1e3", "25oops50") isn't one, rather than being quietly dropped.
+        if ($value === null || ! preg_match('/^[\d.,]+$/', $value)) {
+            return null;
+        }
+
         $decimals = self::decimals($currency);
 
         // "25.00", as toDecimal() writes amounts for inputs, means the same in
@@ -85,6 +91,44 @@ class Money
         $minor = (int) $matches[1] * (10 ** $decimals) + (int) str_pad($matches[2] ?? '', $decimals, '0');
 
         return $minor <= self::MAX ? $minor : null;
+    }
+
+    /**
+     * The typed amount without its currency (a symbol or code, before or
+     * after it) or spaces, or null if what's left still has anything else.
+     */
+    protected static function withoutCurrency(string $value, string $currency, ?string $locale): ?string
+    {
+        $marks = array_unique(array_filter([strtoupper($currency), self::symbol($currency, $locale), '£', '€', '$', 'US$']));
+        usort($marks, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
+
+        foreach ($marks as $mark) {
+            if (str_starts_with($value, $mark)) {
+                $value = mb_substr($value, mb_strlen($mark));
+                break;
+            }
+        }
+
+        foreach ($marks as $mark) {
+            if (str_ends_with($value, $mark)) {
+                $value = mb_substr($value, 0, mb_strlen($value) - mb_strlen($mark));
+                break;
+            }
+        }
+
+        // Spaces, including the non-breaking ones some locales write.
+        return (string) preg_replace('/[\s\x{00A0}\x{202F}]+/u', '', $value);
+    }
+
+    protected static function symbol(string $currency, ?string $locale): ?string
+    {
+        try {
+            $formatter = new NumberFormatter(($locale ?? 'en_GB').'@currency='.strtoupper($currency), NumberFormatter::CURRENCY);
+
+            return $formatter->getSymbol(NumberFormatter::CURRENCY_SYMBOL) ?: null;
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**

@@ -164,6 +164,7 @@ class BladeDocsTest extends TestCase
         $cart = $this->cart([['product' => 'book'], ['product' => 'voucher-25', Products::RECIPIENT_NAME => "Seán O'Brien"]]);
         app(CartVouchers::class)->add($cart, $voucher->code());
         $order = $this->checkout($cart);
+        $this->onConfirmationPage($order);
 
         $html = $this->render('confirmation', ['id' => $order->id()]);
 

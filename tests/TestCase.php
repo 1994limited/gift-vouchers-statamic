@@ -4,6 +4,7 @@ namespace NineteenNinetyFour\GiftVouchers\Tests;
 
 use DuncanMcClean\Cargo\Cart\Calculator\CalculateLineItems;
 use DuncanMcClean\Cargo\Contracts\Cart\Cart as CartContract;
+use DuncanMcClean\Cargo\Contracts\Orders\Order;
 use DuncanMcClean\Cargo\Contracts\Orders\Order as OrderContract;
 use DuncanMcClean\Cargo\Contracts\Products\Product as ProductContract;
 use DuncanMcClean\Cargo\Discounts\DiscountServiceProvider;
@@ -17,7 +18,9 @@ use DuncanMcClean\Cargo\ServiceProvider as CargoServiceProvider;
 use DuncanMcClean\Cargo\Shipping\ShippingServiceProvider;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use NineteenNinetyFour\GiftVouchers\Cargo\PriceHook;
 use NineteenNinetyFour\GiftVouchers\Ledger;
 use NineteenNinetyFour\GiftVouchers\ServiceProvider;
@@ -213,6 +216,17 @@ abstract class TestCase extends AddonTestCase
         $user->save();
 
         return $user;
+    }
+
+    /**
+     * Make this request Cargo's signed confirmation page for an order, as
+     * the order tags only show an order there (or to its customer).
+     */
+    protected function onConfirmationPage(Order $order): void
+    {
+        $url = URL::temporarySignedRoute('checkout.confirmation', now()->addHour(), ['order_id' => $order->id()]);
+
+        $this->app->instance('request', Request::create($url));
     }
 
     /**
