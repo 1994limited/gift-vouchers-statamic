@@ -107,8 +107,8 @@
                 </p>
             @endif
 
-            @if($message)
-                <p class="message">{{ $message }}</p>
+            @if($giftMessage)
+                <p class="message">{{ $giftMessage }}</p>
             @endif
 
             <p class="code-label">{{ __('gift-vouchers::messages.document.code') }}</p>

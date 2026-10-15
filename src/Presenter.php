@@ -54,7 +54,7 @@ class Presenter
             'code' => $voucher->code() ?? $voucher->maskedCode(),
             'recipientName' => $voucher->recipient_name,
             'senderName' => $voucher->sender_name,
-            'message' => $voucher->message,
+            'giftMessage' => $voucher->message,
             'expires' => $replace['expires'] ?: null,
             'colour' => Settings::colour(),
             'onColour' => Settings::onColour(),

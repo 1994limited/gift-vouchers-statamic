@@ -29,8 +29,8 @@
                         <h1 style="margin:0 0 12px; font-size:22px; line-height:1.3; color:#111827;">{{ $heading }}</h1>
                         <p style="margin:0 0 20px; font-size:16px; line-height:1.5;">{{ $intro }}</p>
 
-                        @if($message)
-                            <p style="margin:0 0 24px; padding:4px 0 4px 14px; border-left:3px solid {{ $colour }}; font-size:16px; line-height:1.5; font-style:italic; color:#374151;">{!! nl2br(e($message)) !!}</p>
+                        @if($giftMessage)
+                            <p style="margin:0 0 24px; padding:4px 0 4px 14px; border-left:3px solid {{ $colour }}; font-size:16px; line-height:1.5; font-style:italic; color:#374151;">{!! nl2br(e($giftMessage)) !!}</p>
                         @endif
 
                         <p style="margin:0 0 4px; font-size:13px; color:#6b7280;">{{ $title }}</p>

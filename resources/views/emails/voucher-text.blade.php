@@ -2,9 +2,9 @@
 {!! $heading !!}
 
 {!! $intro !!}
-@if($message)
+@if($giftMessage)
 
-"{!! $message !!}"
+"{!! $giftMessage !!}"
 @endif
 
 {!! $title !!}: {!! $amount !!}
