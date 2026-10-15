@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia;
 use NineteenNinetyFour\GiftVouchers\Cargo\CartVouchers;
 use NineteenNinetyFour\GiftVouchers\Codes;
+use NineteenNinetyFour\GiftVouchers\Designs;
 use NineteenNinetyFour\GiftVouchers\Fieldtypes\GiftVoucherOrder;
 use NineteenNinetyFour\GiftVouchers\Ledger;
 use NineteenNinetyFour\GiftVouchers\Mail\VoucherMail;
+use NineteenNinetyFour\GiftVouchers\ServiceProvider;
 use NineteenNinetyFour\GiftVouchers\Tests\TestCase;
 use NineteenNinetyFour\GiftVouchers\Transaction;
 use NineteenNinetyFour\GiftVouchers\TransactionType;
@@ -344,5 +346,24 @@ class ControlPanelTest extends TestCase
         $this->assertNotNull(Permission::get('view gift vouchers'));
         $this->assertNotNull(Permission::get('edit gift vouchers'));
         $this->assertNotNull(Permission::get('create gift vouchers'));
+    }
+
+    #[Test]
+    public function the_nav_icon_is_small_and_has_no_embedded_metadata(): void
+    {
+        // It's inlined into every Control Panel page.
+        $this->assertLessThan(1024, strlen(ServiceProvider::ICON));
+        $this->assertStringNotContainsString('<metadata', ServiceProvider::ICON);
+        $this->assertSame(trim(file_get_contents(__DIR__.'/../../resources/brand/nav-icon.svg')), ServiceProvider::ICON);
+    }
+
+    #[Test]
+    public function a_vouchers_design_shows_by_name_on_the_receipt(): void
+    {
+        $design = app(Designs::class)->all()->first();
+        $field = (new Field('voucher_design', ['type' => 'gift_voucher_design']))->setValue($design->handle);
+
+        $this->assertSame($design->name, $field->preProcessIndex()->value());
+        $this->assertSame('gone', $field->setValue('gone')->preProcessIndex()->value());
     }
 }

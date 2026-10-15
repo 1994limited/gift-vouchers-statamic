@@ -7,6 +7,7 @@ use NineteenNinetyFour\GiftVouchers\Cargo\CartVouchers;
 use NineteenNinetyFour\GiftVouchers\Cargo\OrderVouchers;
 use NineteenNinetyFour\GiftVouchers\Ledger;
 use NineteenNinetyFour\GiftVouchers\Money;
+use NineteenNinetyFour\GiftVouchers\ServiceProvider;
 use NineteenNinetyFour\GiftVouchers\VoucherException;
 use Statamic\Actions\Action;
 use Statamic\Facades\User;
@@ -28,6 +29,14 @@ class RefundToGiftVoucher extends Action
     public static function title()
     {
         return __('gift-vouchers::messages.cp.refund_action');
+    }
+
+    /**
+     * The gift voucher icon, so it stands apart from Cargo's own Refund.
+     */
+    public function icon(): string
+    {
+        return ServiceProvider::ICON;
     }
 
     public function visibleTo($item)

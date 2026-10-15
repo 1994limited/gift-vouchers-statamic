@@ -161,8 +161,9 @@ class GiftVoucherTags extends Tags
         ])->render();
 
         $attributes = sprintf(
-            ' data-currency="%s" data-locale="%s" data-amount="%s" data-for-label="%s" data-from-label="%s" data-designs="%s"%s',
+            ' data-currency="%s" data-decimal="%s" data-locale="%s" data-amount="%s" data-for-label="%s" data-from-label="%s" data-designs="%s"%s',
             e($currency),
+            e(Money::decimalSeparator()),
             e(str_replace('_', '-', Site::current()->locale())),
             e(Money::format($amount, $currency)),
             e(__('gift-vouchers::messages.document.for_label')),

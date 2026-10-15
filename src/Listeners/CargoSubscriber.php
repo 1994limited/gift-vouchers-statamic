@@ -222,11 +222,18 @@ class CargoSubscriber
         ];
 
         foreach ($fields as $handle => $label) {
-            $event->blueprint->ensureField($handle, [
+            $config = [
                 'type' => $handle === Products::MESSAGE ? 'textarea' : 'text',
                 'display' => __('gift-vouchers::messages.fields.'.$label),
                 'visibility' => 'read_only',
-            ]);
+            ];
+
+            // The design by its name ("Birthday"), not its handle.
+            if ($handle === Products::DESIGN) {
+                $config['type'] = 'gift_voucher_design';
+            }
+
+            $event->blueprint->ensureField($handle, $config);
         }
     }
 

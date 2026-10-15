@@ -22,6 +22,27 @@
             const art = card.querySelector('[data-preview-art]');
             const field = (name) => form.querySelector(`[name="${name}"]`);
 
+            // Read the amount box as the server does (Money::parse): an
+            // optional currency symbol or code, the site's decimal separator,
+            // thousands only in groups of three, and nothing else.
+            const decimal = card.dataset.decimal === ',' ? ',' : '.';
+            const group = decimal === '.' ? ',' : '.';
+            const amountOf = (raw) => {
+                const value = String(raw).trim()
+                    .replace(/^(?:[A-Z]{3}|[^\w\s]{1,3})\s*/u, '')
+                    .replace(/\s*(?:[A-Z]{3}|[^\w\s]{1,3})$/u, '')
+                    .replace(/[\s  ]/gu, '');
+
+                if (!/^[\d.,]+$/.test(value)) return null;
+                if (/^\d+\.\d{2}$/.test(value)) return parseFloat(value); // "25.00", as quick amounts write it
+
+                const [whole, fraction, extra] = value.split(decimal);
+                if (extra !== undefined || (fraction !== undefined && !/^\d{1,2}$/.test(fraction))) return null;
+                if (whole.includes(group) && !new RegExp(`^\\d{1,3}(\\${group}\\d{3})+$`).test(whole)) return null;
+
+                return parseFloat(whole.split(group).join('') + (fraction !== undefined ? `.${fraction}` : ''));
+            };
+
             const put = (name, label, value) => {
                 const el = card.querySelector(`[data-preview="${name}"]`);
                 if (!el) return;
@@ -37,8 +58,8 @@
                 const amount = field('amount');
                 const amountEl = card.querySelector('[data-preview="amount"]');
                 if (amount && amountEl) {
-                    const value = parseFloat(String(amount.value).replace(/[^\d.]/g, ''));
-                    amountEl.textContent = Number.isFinite(value) ? money.format(value) : card.dataset.amount;
+                    const value = amountOf(amount.value);
+                    amountEl.textContent = value === null || !Number.isFinite(value) ? '—' : money.format(value);
                     form.querySelectorAll('[data-gift-vouchers-amount]').forEach((button) => {
                         button.setAttribute('aria-pressed', String(parseFloat(button.dataset.giftVouchersAmount) === value));
                     });
