@@ -1,6 +1,6 @@
 # Cargo's prebuilt checkout
 
-![Cargo's prebuilt checkout with a gift voucher taken off the total](images/prebuilt-checkout.png)
+![Cargo's prebuilt checkout with a gift voucher taken off the total](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/prebuilt-checkout.png)
 
 > These partials are Antlers, as Cargo's prebuilt checkout is. A Blade site with its own checkout uses the tags instead: see [Templates](templates.md), where every example has a Blade version.
 

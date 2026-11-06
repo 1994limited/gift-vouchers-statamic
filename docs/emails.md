@@ -2,7 +2,7 @@
 
 When a voucher is made, it's emailed to its recipient (or the customer, if no recipient was given). The email has the amount, the code, the shopper's message, how to spend it, a link to the printable voucher, and the voucher attached as a PDF.
 
-![The voucher email](images/email.png)
+![The voucher email](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/email.png)
 
 ## The wording
 

@@ -45,4 +45,4 @@ The order's **Details** tab shows a **Gift Vouchers** section under the receipt:
 
 The voucher's recipient, message and send date are shown with its line item on the receipt and on packing slips.
 
-![An order with a voucher used and one bought](images/cp-order.png)
+![An order with a voucher used and one bought](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/cp-order.png)

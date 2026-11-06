@@ -2,7 +2,7 @@
 
 ## Store → Gift Vouchers
 
-![Store → Gift Vouchers](images/cp-vouchers.png)
+![Store → Gift Vouchers](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/cp-vouchers.png)
 
 Every voucher, newest first: its code (the last four characters), recipient, amount, balance and status (Active, Spent, Expired or Disabled, and Scheduled while it waits for its send date).
 
@@ -13,7 +13,7 @@ Every voucher, newest first: its code (the last four characters), recipient, amo
 
 ## A voucher
 
-![A voucher's page](images/cp-voucher.png)
+![A voucher's page](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/cp-voucher.png)
 
 - **Balance**, original amount and how much has been spent.
 - **Show code** shows the whole code, to read out to a customer who's lost their email.
@@ -28,7 +28,7 @@ Every voucher, newest first: its code (the last four characters), recipient, amo
 
 **Create Voucher** makes one by hand: for a goodwill gesture, a competition prize, or to replace a lost card.
 
-![Creating a voucher](images/cp-create.png)
+![Creating a voucher](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/cp-create.png)
 
 Choose the amount, expiry, design and recipient. Leave the code empty for a random one (best), or type one, such as `SPRING-FAIR-2026`. The note is kept in the voucher's history. Tick **Email the voucher** to send it now, or on its **Send on** date. Without the tick, the voucher isn't emailed (the send date is ignored): print it, or email it later from its page.
 

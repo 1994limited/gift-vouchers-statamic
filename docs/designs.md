@@ -1,6 +1,6 @@
 # Designs
 
-![An engraved voucher with a birthday cake at the heart of its pattern](images/voucher-birthday.png)
+![An engraved voucher with a birthday cake at the heart of its pattern](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/voucher-birthday.png)
 
 Every voucher is a card: on the printable page, in the PDF attached to its email, and as the live preview on your product page. You can change how it looks at three levels:
 

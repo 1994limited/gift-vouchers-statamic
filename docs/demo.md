@@ -2,7 +2,7 @@
 
 **Paper & Ink** is a small, made-up stationery shop built with Gift Vouchers and Cargo, at [1994limited/gift-vouchers-statamic-demo](https://github.com/1994limited/gift-vouchers-statamic-demo). Every screenshot in these docs comes from it. Run it to try Gift Vouchers before you build with it, or copy its templates.
 
-![Paper & Ink's gift voucher page, with the live preview](images/shop-voucher.png)
+![Paper & Ink's gift voucher page, with the live preview](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/shop-voucher.png)
 
 It shows:
 

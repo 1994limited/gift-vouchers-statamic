@@ -2,7 +2,7 @@
 
 Sell gift vouchers with [Cargo](https://builtwithcargo.dev). Shoppers choose an amount, a design and who it's for. The recipient is emailed an engraved voucher with a printable PDF, and spends it at checkout, all at once or over several orders.
 
-![Gift Vouchers for Statamic and Cargo: choose it, send it, spend it](docs/marketplace/cover-1600x900.png)
+![Gift Vouchers for Statamic and Cargo: choose it, send it, spend it](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/cover-1600x900.png)
 
 ## Features
 
@@ -19,7 +19,7 @@ Sell gift vouchers with [Cargo](https://builtwithcargo.dev). Shoppers choose an 
 
 | The voucher form | The checkout | The Control Panel |
 | --- | --- | --- |
-| ![The voucher form with its live preview](docs/images/shop-voucher.png) | ![Cargo's checkout with a voucher](docs/images/prebuilt-checkout.png) | ![Store → Gift Vouchers](docs/images/cp-vouchers.png) |
+| ![The voucher form with its live preview](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/shop-voucher.png) | ![Cargo's checkout with a voucher](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/prebuilt-checkout.png) | ![Store → Gift Vouchers](https://raw.githubusercontent.com/1994limited/statamic-marketplace/main/gift-vouchers/charts/cp-vouchers.png) |
 
 The screenshots are from Paper & Ink, a made-up shop built only with the tags in [the docs](docs/README.md). **[Try the demo](https://github.com/1994limited/gift-vouchers-statamic-demo)**: it runs locally in a few commands, with no licence needed. See [The demo shop](docs/demo.md).
 
